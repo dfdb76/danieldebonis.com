@@ -291,18 +291,24 @@ footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--mut
 
 <script>
 // ---- Globals ----
-let DB; // loaded data
+let DB; // loaded data (light: aggregated by ano/reg/uf/dep/area)
+let DB_ENT; // entity-level data (lazy loaded)
 let filtered = []; // filtered records
 let entityTable = []; // aggregated entity rows
 let sortCol = "m25", sortAsc = false;
 let page = 0;
 const PAGE_SIZE = 50;
 
-// Record indices: [ano, reg_i, uf_i, mun_i, dep_i, ent_i, area_i, curso_i, mat, mat_int, mat_nm, mat_conc, mat_subs, mat_eja]
-const I_ANO=0, I_REG=1, I_UF=2, I_MUN=3, I_DEP=4, I_ENT=5, I_AREA=6, I_CURSO=7, I_MAT=8;
-const I_MAT_INT=9, I_MAT_NM=10, I_MAT_CONC=11, I_MAT_SUBS=12, I_MAT_EJA=13;
+// Light record indices: [ano, reg, uf, dep, area, mat, mat_int, mat_nm, mat_conc, mat_subs, mat_eja, n_ent, n_cursos]
+const I_ANO=0, I_REG=1, I_UF=2, I_DEP=3, I_AREA=4, I_MAT=5;
+const I_MAT_INT=6, I_MAT_NM=7, I_MAT_CONC=8, I_MAT_SUBS=9, I_MAT_EJA=10;
+const I_N_ENT=11, I_N_CURSOS=12;
 const MODALIDADE_IDX = { 'int': I_MAT_INT, 'nm': I_MAT_NM, 'conc': I_MAT_CONC, 'subs': I_MAT_SUBS, 'eja': I_MAT_EJA };
-let activeMatIdx = I_MAT; // which mat column to use (changes with modalidade filter)
+let activeMatIdx = I_MAT;
+
+// Entity record indices (heavy file): [ano, reg, uf, mun, dep, ent, area, curso, mat, ...]
+const EI_ANO=0, EI_REG=1, EI_UF=2, EI_MUN=3, EI_DEP=4, EI_ENT=5, EI_AREA=6, EI_CURSO=7, EI_MAT=8;
+const EI_MAT_INT=9, EI_MAT_NM=10, EI_MAT_CONC=11, EI_MAT_SUBS=12, EI_MAT_EJA=13;
 
 // Charts
 let chartEvolucao, chartDep, chartAreas, chartCursos;
@@ -311,13 +317,24 @@ const COLORS = ['#E3120B','#1F3044','#3A6E9E','#D45D5D','#388E8E','#C2D8E5','#76
 const DEP_COLORS = {'Federal':'#1F3044','Estadual':'#3A6E9E','Municipal':'#388E8E','Privada':'#E3120B'};
 const PUB_DEPS = new Set(['Federal','Estadual','Municipal']);
 
-// ---- Load Data ----
+// ---- Load Data (two-phase: light instant, heavy lazy) ----
 fetch('dashboard_data.json')
   .then(r => r.json())
   .then(data => {
     DB = data;
     init();
     document.getElementById('loading').style.display = 'none';
+    // Phase 2: lazy load entity-level data for table & cursos chart
+    fetch('dashboard_entities.json')
+      .then(r => r.json())
+      .then(entData => {
+        DB_ENT = entData;
+        // Re-run table and cursos chart with full data
+        buildEntityTable();
+        renderTable();
+        updateCursosChart();
+      })
+      .catch(() => {}); // silently fail — table just stays empty
   })
   .catch(err => {
     document.getElementById('loading').innerHTML = `<div style="color:#E3120B">Erro ao carregar dados: ${err.message}<br>Certifique-se de que o arquivo dashboard_data.json está na mesma pasta.</div>`;
@@ -409,26 +426,22 @@ function applyFilters() {
 
   const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
   const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
-  const munI = fMun ? DB.municipios.indexOf(fMun) : -1;
   const depI = fDep ? DB.deps.indexOf(fDep) : -1;
   const areaI = fArea ? DB.areas.indexOf(fArea) : -1;
-  const cursoI = fCurso ? DB.cursos.indexOf(fCurso) : -1;
 
   const pubSet = fPP === 'pub' ? new Set() : null;
   const privSet = fPP === 'priv' ? new Set() : null;
   if (pubSet) DB.deps.forEach((d,i) => { if (PUB_DEPS.has(d)) pubSet.add(i); });
   if (privSet) DB.deps.forEach((d,i) => { if (!PUB_DEPS.has(d)) privSet.add(i); });
 
+  // Filter light records (no mun/curso — those filter only the entity table)
   filtered = DB.records.filter(r => {
     if (regI >= 0 && r[I_REG] !== regI) return false;
     if (ufI >= 0 && r[I_UF] !== ufI) return false;
-    if (munI >= 0 && r[I_MUN] !== munI) return false;
     if (depI >= 0 && r[I_DEP] !== depI) return false;
     if (pubSet && !pubSet.has(r[I_DEP])) return false;
     if (privSet && !privSet.has(r[I_DEP])) return false;
     if (areaI >= 0 && r[I_AREA] !== areaI) return false;
-    if (cursoI >= 0 && r[I_CURSO] !== cursoI) return false;
-    // If modalidade selected, only include records that have enrollments in that modality
     if (fMod && r[activeMatIdx] === 0) return false;
     return true;
   });
@@ -451,13 +464,13 @@ function pct(a, b) {
 
 function updateKPIs() {
   let m23=0, m24=0, m25=0;
-  const ents23 = new Set(), ents24 = new Set(), ents25 = new Set();
-  const crs23 = new Set(), crs24 = new Set(), crs25 = new Set();
+  let ents23=0, ents24=0, ents25=0;
+  let crs23=0, crs24=0, crs25=0;
   for (const r of filtered) {
     const mat = r[activeMatIdx];
-    if (r[I_ANO] === 2023) { m23 += mat; ents23.add(r[I_ENT]); crs23.add(r[I_CURSO]); }
-    else if (r[I_ANO] === 2024) { m24 += mat; ents24.add(r[I_ENT]); crs24.add(r[I_CURSO]); }
-    else if (r[I_ANO] === 2025) { m25 += mat; ents25.add(r[I_ENT]); crs25.add(r[I_CURSO]); }
+    if (r[I_ANO] === 2023) { m23 += mat; ents23 += r[I_N_ENT]; crs23 += r[I_N_CURSOS]; }
+    else if (r[I_ANO] === 2024) { m24 += mat; ents24 += r[I_N_ENT]; crs24 += r[I_N_CURSOS]; }
+    else if (r[I_ANO] === 2025) { m25 += mat; ents25 += r[I_N_ENT]; crs25 += r[I_N_CURSOS]; }
   }
   document.getElementById('kpi-mat25').textContent = fmt(m25);
   document.getElementById('kpi-mat24').textContent = fmt(m24);
@@ -467,11 +480,11 @@ function updateKPIs() {
   setDelta('kpi-delta23', m23, 0, '');
   document.getElementById('kpi-delta23').textContent = '';
 
-  document.getElementById('kpi-ent').textContent = fmt(ents25.size);
-  setDelta('kpi-ent-delta', ents25.size, ents24.size, 'vs 2024');
+  document.getElementById('kpi-ent').textContent = fmt(ents25);
+  setDelta('kpi-ent-delta', ents25, ents24, 'vs 2024');
 
-  document.getElementById('kpi-cursos').textContent = fmt(crs25.size);
-  setDelta('kpi-cursos-delta', crs25.size, crs24.size, 'vs 2024');
+  document.getElementById('kpi-cursos').textContent = fmt(crs25);
+  setDelta('kpi-cursos-delta', crs25, crs24, 'vs 2024');
 }
 
 function setDelta(id, curr, prev, label) {
@@ -516,7 +529,6 @@ function updateCharts() {
   let byYear = {2023:0, 2024:0, 2025:0};
   let depMat = {};
   let areaMat = {};
-  let cursoMat = {};
   for (const r of filtered) {
     const mat = r[activeMatIdx];
     byYear[r[I_ANO]] = (byYear[r[I_ANO]]||0) + mat;
@@ -525,8 +537,6 @@ function updateCharts() {
       depMat[dep] = (depMat[dep]||0) + mat;
       const area = DB.areas[r[I_AREA]] || '?';
       areaMat[area] = (areaMat[area]||0) + mat;
-      const curso = DB.cursos[r[I_CURSO]] || '?';
-      cursoMat[curso] = (cursoMat[curso]||0) + mat;
     }
   }
 
@@ -550,36 +560,107 @@ function updateCharts() {
   chartAreas.data.datasets = [{ data: topAreas.map(e => e[1]), backgroundColor: '#1F3044', borderRadius: 0 }];
   chartAreas.update();
 
-  // Top 10 cursos
+  // Top 10 cursos — from entity-level data if loaded
+  updateCursosChart();
+}
+
+function updateCursosChart() {
+  if (!DB_ENT) {
+    chartCursos.data.labels = ['Carregando detalhes...'];
+    chartCursos.data.datasets = [{ data: [0], backgroundColor: '#D4D4D4', borderRadius: 0 }];
+    chartCursos.update();
+    return;
+  }
+  const fReg = document.getElementById('f-regiao').value;
+  const fUf = document.getElementById('f-uf').value;
+  const fDep = document.getElementById('f-dep').value;
+  const fPP = document.getElementById('f-pubpriv').value;
+  const fArea = document.getElementById('f-area').value;
+  const fMod = document.getElementById('f-modalidade').value;
+  const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
+  const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
+  const depI = fDep ? DB.deps.indexOf(fDep) : -1;
+  const areaI = fArea ? DB.areas.indexOf(fArea) : -1;
+  const pubSet = fPP === 'pub' ? new Set() : null;
+  const privSet = fPP === 'priv' ? new Set() : null;
+  if (pubSet) DB.deps.forEach((d,i) => { if (PUB_DEPS.has(d)) pubSet.add(i); });
+  if (privSet) DB.deps.forEach((d,i) => { if (!PUB_DEPS.has(d)) privSet.add(i); });
+  const eMatIdx = fMod ? ({int:EI_MAT_INT,nm:EI_MAT_NM,conc:EI_MAT_CONC,subs:EI_MAT_SUBS,eja:EI_MAT_EJA}[fMod]||EI_MAT) : EI_MAT;
+
+  let cursoMat = {};
+  for (const r of DB_ENT.records) {
+    if (r[EI_ANO] !== 2025) continue;
+    if (regI >= 0 && r[EI_REG] !== regI) continue;
+    if (ufI >= 0 && r[EI_UF] !== ufI) continue;
+    if (depI >= 0 && r[EI_DEP] !== depI) continue;
+    if (pubSet && !pubSet.has(r[EI_DEP])) continue;
+    if (privSet && !privSet.has(r[EI_DEP])) continue;
+    if (areaI >= 0 && r[EI_AREA] !== areaI) continue;
+    if (fMod && r[eMatIdx] === 0) continue;
+    const curso = DB.cursos[r[EI_CURSO]] || '?';
+    cursoMat[curso] = (cursoMat[curso]||0) + r[eMatIdx];
+  }
   const topCursos = Object.entries(cursoMat).sort((a,b) => b[1]-a[1]).slice(0,10).reverse();
   chartCursos.data.labels = topCursos.map(e => e[0].length > 35 ? e[0].substring(0,35)+'…' : e[0]);
   chartCursos.data.datasets = [{ data: topCursos.map(e => e[1]), backgroundColor: '#E3120B', borderRadius: 0 }];
   chartCursos.update();
 }
 
-// ---- Entity Table ----
+// ---- Entity Table (uses lazy-loaded entity data) ----
 function buildEntityTable() {
-  // Aggregate by entity: sum mat per year, capture UF/mun/dep from first record
+  if (!DB_ENT) {
+    entityTable = [];
+    return;
+  }
+  const fReg = document.getElementById('f-regiao').value;
+  const fUf = document.getElementById('f-uf').value;
+  const fMun = document.getElementById('f-municipio').value;
+  const fDep = document.getElementById('f-dep').value;
+  const fPP = document.getElementById('f-pubpriv').value;
+  const fArea = document.getElementById('f-area').value;
+  const fCurso = document.getElementById('f-curso').value;
+  const fMod = document.getElementById('f-modalidade').value;
+  const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
+  const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
+  const munI = fMun ? DB.municipios.indexOf(fMun) : -1;
+  const depI = fDep ? DB.deps.indexOf(fDep) : -1;
+  const areaI = fArea ? DB.areas.indexOf(fArea) : -1;
+  const cursoI = fCurso ? DB.cursos.indexOf(fCurso) : -1;
+  const pubSet = fPP === 'pub' ? new Set() : null;
+  const privSet = fPP === 'priv' ? new Set() : null;
+  if (pubSet) DB.deps.forEach((d,i) => { if (PUB_DEPS.has(d)) pubSet.add(i); });
+  if (privSet) DB.deps.forEach((d,i) => { if (!PUB_DEPS.has(d)) privSet.add(i); });
+  const eMatIdx = fMod ? ({int:EI_MAT_INT,nm:EI_MAT_NM,conc:EI_MAT_CONC,subs:EI_MAT_SUBS,eja:EI_MAT_EJA}[fMod]||EI_MAT) : EI_MAT;
+
   const map = new Map();
-  for (const r of filtered) {
-    const key = r[I_ENT];
+  for (const r of DB_ENT.records) {
+    if (regI >= 0 && r[EI_REG] !== regI) continue;
+    if (ufI >= 0 && r[EI_UF] !== ufI) continue;
+    if (munI >= 0 && r[EI_MUN] !== munI) continue;
+    if (depI >= 0 && r[EI_DEP] !== depI) continue;
+    if (pubSet && !pubSet.has(r[EI_DEP])) continue;
+    if (privSet && !privSet.has(r[EI_DEP])) continue;
+    if (areaI >= 0 && r[EI_AREA] !== areaI) continue;
+    if (cursoI >= 0 && r[EI_CURSO] !== cursoI) continue;
+    if (fMod && r[eMatIdx] === 0) continue;
+
+    const key = r[EI_ENT];
     if (!map.has(key)) {
       map.set(key, {
-        ent: DB.entidades[r[I_ENT]] || '?',
-        uf: DB.ufs[r[I_UF]] || '?',
-        mun: DB.municipios[r[I_MUN]] || '?',
-        dep: DB.deps[r[I_DEP]] || '?',
+        ent: DB_ENT.entidades[r[EI_ENT]] || '?',
+        uf: DB.ufs[r[EI_UF]] || '?',
+        mun: DB.municipios[r[EI_MUN]] || '?',
+        dep: DB.deps[r[EI_DEP]] || '?',
         m23: 0, m24: 0, m25: 0,
       });
     }
     const entry = map.get(key);
-    const mat = r[activeMatIdx];
-    if (r[I_ANO] === 2023) entry.m23 += mat;
-    else if (r[I_ANO] === 2024) entry.m24 += mat;
-    else if (r[I_ANO] === 2025) entry.m25 += mat;
+    const mat = r[eMatIdx];
+    if (r[EI_ANO] === 2023) entry.m23 += mat;
+    else if (r[EI_ANO] === 2024) entry.m24 += mat;
+    else if (r[EI_ANO] === 2025) entry.m25 += mat;
   }
   entityTable = Array.from(map.values());
-  // compute var
   entityTable.forEach(e => {
     e.var = e.m23 > 0 ? ((e.m25 - e.m23) / e.m23 * 100) : (e.m25 > 0 ? 999 : 0);
   });
@@ -606,4 +687,24 @@ function renderTable() {
   const tbody = document.getElementById('table-body');
   tbody.innerHTML = slice.map(e => {
     const varStr = e.m23 > 0
-      ? `<span style="
+      ? `<span style="color:${e.var >= 0 ? 'var(--green)' : 'var(--red)'}">${e.var >= 999 ? 'Novo' : (e.var >= 0 ? '+' : '') + e.var.toFixed(1) + '%'}</span>`
+      : (e.m25 > 0 ? '<span style="color:var(--green)">Novo</span>' : '—');
+    return `<tr>
+      <td>${e.ent}</td>
+      <td>${e.uf}</td>
+      <td>${e.mun}</td>
+      <td>${e.dep}</td>
+      <td style="text-align:right">${fmt(e.m23)}</td>
+      <td style="text-align:right">${fmt(e.m24)}</td>
+      <td style="text-align:right;font-weight:600">${fmt(e.m25)}</td>
+      <td style="text-align:right">${varStr}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pg-info').textContent = `${start+1}–${Math.min(start+PAGE_SIZE, total)} de ${fmt(total)}`;
+  document.getElementById('pg-prev').disabled = page === 0;
+  document.getElementById('pg-next').disabled = page >= totalPages - 1;
+}
+</script>
+</body>
+</html>
