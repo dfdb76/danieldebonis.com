@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard EPT – Daniel De Bonis</title>
+<link rel="stylesheet" href="../css/economist.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --primary: #1D1D1B;
+  --accent: #E3120B;
+  --bg: #ffffff;
+  --card: #ffffff;
+  --border: #D4D4D4;
+  --text: #1D1D1B;
+  --muted: #76797B;
+  --green: #388E8E;
+  --red: #E3120B;
+  --orange: #D45D5D;
+  --blue-dark: #1F3044;
+  --blue-mid: #3A6E9E;
+  --blue-light: #C2D8E5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Franklin Gothic Medium', 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); }
+.economist-topline { height: 4px; background: var(--accent); }
+header {
+  background: #ffffff;
+  color: var(--text); padding: 20px 30px; display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid var(--border);
+}
+header h1 { font-size: 1.4rem; font-weight: 700; font-family: Georgia, 'Times New Roman', serif; }
+header .subtitle { font-size: 0.85rem; color: var(--muted); }
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(255,255,255,0.95);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; font-size: 1.1rem; color: var(--text);
+}
+.spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* Filters */
+.filters {
+  background: var(--card); border-radius: 0; padding: 18px 22px;
+  border: 1px solid var(--border); margin-bottom: 20px;
+}
+.filters h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 12px; }
+.filter-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+}
+.filter-group label { display: block; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+.filter-group select {
+  width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 2px;
+  font-size: 0.85rem; background: white; color: var(--text); cursor: pointer;
+}
+.filter-group select:focus { outline: none; border-color: var(--accent); box-shadow: none; }
+.filter-actions { display: flex; gap: 10px; align-items: end; }
+.btn-clear {
+  padding: 7px 16px; border: 1px solid var(--border); border-radius: 2px; background: white;
+  font-size: 0.8rem; cursor: pointer; color: var(--muted); transition: all 0.15s;
+}
+.btn-clear:hover { background: var(--bg); color: var(--text); }
+
+/* KPI Cards */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.kpi {
+  background: var(--card); border-radius: 0; padding: 16px 20px;
+  border: 1px solid var(--border);
+}
+.kpi .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); font-weight: 600; }
+.kpi .value { font-size: 1.6rem; font-weight: 700; color: var(--text); margin: 4px 0; }
+.kpi .delta { font-size: 0.8rem; }
+.kpi .delta.up { color: var(--green); }
+.kpi .delta.down { color: var(--red); }
+
+/* Charts */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.chart-card {
+  background: var(--card); border-radius: 0; padding: 18px;
+  border: 1px solid var(--border);
+}
+.chart-card h3 { font-size: 0.9rem; color: var(--text); margin-bottom: 12px; font-family: Georgia, 'Times New Roman', serif; font-weight: 700; }
+.chart-container { position: relative; height: 320px; }
+
+/* Table */
+.table-card {
+  background: var(--card); border-radius: 0; padding: 18px;
+  border: 1px solid var(--border); margin-bottom: 20px;
+}
+.table-card h3 { font-size: 0.9rem; color: var(--text); margin-bottom: 4px; font-family: Georgia, 'Times New Roman', serif; font-weight: 700; }
+.table-card .table-info { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
+.table-wrapper { overflow-x: auto; max-height: 500px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead { position: sticky; top: 0; z-index: 2; }
+th {
+  background: var(--blue-dark); color: white; padding: 9px 12px;
+  text-align: left; font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap;
+}
+th:hover { background: var(--blue-mid); }
+th .sort-arrow { margin-left: 4px; font-size: 0.7rem; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+tr:hover td { background: #f0f0f0; }
+tr:nth-child(even) td { background: #fafafa; }
+tr:nth-child(even):hover td { background: #f0f0f0; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; }
+.pagination button {
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 2px;
+  background: white; cursor: pointer; font-size: 0.8rem;
+}
+.pagination button:disabled { opacity: 0.4; cursor: default; }
+.pagination span { font-size: 0.8rem; color: var(--muted); }
+
+footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .charts-row { grid-template-columns: 1fr; }
+  .filter-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .filter-grid { grid-template-columns: 1fr; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div>Carregando microdados (pode levar alguns segundos)...</div>
+</div>
+
+<div class="economist-topline"></div>
+<nav class="site-nav">
+  <a href="../index.html" class="nav-brand">Daniel De Bonis</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li><a href="../dashboard-ept/index.html" class="active">Dashboard EPT</a></li>
+    <li><a href="../dashboard-pisa/index.html">Dashboard PISA</a></li>
+  </ul>
+</nav>
+<header>
+  <div>
+    <h1>Educação Profissional e Tecnológica – Cursos Técnicos</h1>
+    <div class="subtitle">Microdados do Censo Escolar | Brasil | 2023–2025</div>
+  </div>
+</header>
+
+<div class="container">
+  <!-- Filters -->
+  <div class="filters">
+    <h3>Filtros</h3>
+    <div class="filter-grid">
+      <div class="filter-group">
+        <label>Região</label>
+        <select id="f-regiao"><option value="">Todas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>UF</label>
+        <select id="f-uf"><option value="">Todas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Município</label>
+        <select id="f-municipio"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Dependência Administrativa</label>
+        <select id="f-dep"><option value="">Todas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Público / Privado</label>
+        <select id="f-pubpriv">
+          <option value="">Todos</option>
+          <option value="pub">Pública</option>
+          <option value="priv">Privada</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Área do Curso</label>
+        <select id="f-area"><option value="">Todas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Curso</label>
+        <select id="f-curso"><option value="">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Modalidade</label>
+        <select id="f-modalidade">
+          <option value="">Todas</option>
+          <option value="int">Integrado ao Ensino Médio</option>
+          <option value="nm">Normal/Magistério</option>
+          <option value="conc">Concomitante</option>
+          <option value="subs">Subsequente</option>
+          <option value="eja">EJA</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-clear" id="btn-clear">Limpar filtros</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="label">Matrículas 2025</div>
+      <div class="value" id="kpi-mat25">–</div>
+      <div class="delta" id="kpi-delta25"></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Matrículas 2024</div>
+      <div class="value" id="kpi-mat24">–</div>
+      <div class="delta" id="kpi-delta24"></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Matrículas 2023</div>
+      <div class="value" id="kpi-mat23">–</div>
+      <div class="delta" id="kpi-delta23"></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Entidades (2025)</div>
+      <div class="value" id="kpi-ent">–</div>
+      <div class="delta" id="kpi-ent-delta"></div>
+    </div>
+    <div class="kpi">
+      <div class="label">Cursos ofertados (2025)</div>
+      <div class="value" id="kpi-cursos">–</div>
+      <div class="delta" id="kpi-cursos-delta"></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Evolução de Matrículas (2023–2025)</h3>
+      <div class="chart-container"><canvas id="chart-evolucao"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Matrículas por Dependência Administrativa (2025)</h3>
+      <div class="chart-container"><canvas id="chart-dep"></canvas></div>
+    </div>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Top 10 Áreas – Matrículas (2025)</h3>
+      <div class="chart-container"><canvas id="chart-areas"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Top 10 Cursos – Matrículas (2025)</h3>
+      <div class="chart-container"><canvas id="chart-cursos"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Entity Table -->
+  <div class="table-card">
+    <h3>Relação de Entidades</h3>
+    <div class="table-info" id="table-info">Mostrando os resultados filtrados com matrículas por ano</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th data-col="ent">Entidade <span class="sort-arrow"></span></th>
+            <th data-col="uf">UF <span class="sort-arrow"></span></th>
+            <th data-col="mun">Município <span class="sort-arrow"></span></th>
+            <th data-col="dep">Dep. Adm. <span class="sort-arrow"></span></th>
+            <th data-col="m23" class="num">Mat. 2023 <span class="sort-arrow"></span></th>
+            <th data-col="m24" class="num">Mat. 2024 <span class="sort-arrow"></span></th>
+            <th data-col="m25" class="num">Mat. 2025 <span class="sort-arrow"></span></th>
+            <th data-col="var" class="num">Var. 23→25 <span class="sort-arrow"></span></th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <button id="pg-prev">← Anterior</button>
+      <span id="pg-info"></span>
+      <button id="pg-next">Próxima →</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Fonte: Microdados do Censo Escolar (INEP) – Suplemento de Cursos Técnicos 2023, 2024 e 2025 | Dashboard gerado em março/2026
+</footer>
+
+<script>
+// ---- Globals ----
+let DB; // loaded data
+let filtered = []; // filtered records
+let entityTable = []; // aggregated entity rows
+let sortCol = "m25", sortAsc = false;
+let page = 0;
+const PAGE_SIZE = 50;
+
+// Record indices: [ano, reg_i, uf_i, mun_i, dep_i, ent_i, area_i, curso_i, mat, mat_int, mat_nm, mat_conc, mat_subs, mat_eja]
+const I_ANO=0, I_REG=1, I_UF=2, I_MUN=3, I_DEP=4, I_ENT=5, I_AREA=6, I_CURSO=7, I_MAT=8;
+const I_MAT_INT=9, I_MAT_NM=10, I_MAT_CONC=11, I_MAT_SUBS=12, I_MAT_EJA=13;
+const MODALIDADE_IDX = { 'int': I_MAT_INT, 'nm': I_MAT_NM, 'conc': I_MAT_CONC, 'subs': I_MAT_SUBS, 'eja': I_MAT_EJA };
+let activeMatIdx = I_MAT; // which mat column to use (changes with modalidade filter)
+
+// Charts
+let chartEvolucao, chartDep, chartAreas, chartCursos;
+
+const COLORS = ['#E3120B','#1F3044','#3A6E9E','#D45D5D','#388E8E','#C2D8E5','#76797B','#1D1D1B','#A3120B','#5A9E9E'];
+const DEP_COLORS = {'Federal':'#1F3044','Estadual':'#3A6E9E','Municipal':'#388E8E','Privada':'#E3120B'};
+const PUB_DEPS = new Set(['Federal','Estadual','Municipal']);
+
+// ---- Load Data ----
+fetch('dashboard_data.json')
+  .then(r => r.json())
+  .then(data => {
+    DB = data;
+    init();
+    document.getElementById('loading').style.display = 'none';
+  })
+  .catch(err => {
+    document.getElementById('loading').innerHTML = `<div style="color:#E3120B">Erro ao carregar dados: ${err.message}<br>Certifique-se de que o arquivo dashboard_data.json está na mesma pasta.</div>`;
+  });
+
+function init() {
+  populateFilters();
+  setupEvents();
+  initCharts();
+  applyFilters();
+}
+
+// ---- Filters ----
+function populateFilters() {
+  fillSelect('f-regiao', DB.regioes);
+  fillSelect('f-uf', DB.ufs);
+  fillSelect('f-dep', DB.deps);
+  fillSelect('f-area', DB.areas);
+  // municipio and curso are dependent
+}
+
+function fillSelect(id, items, blankLabel) {
+  const sel = document.getElementById(id);
+  const val = sel.value;
+  const opts = sel.querySelectorAll('option');
+  // Keep first option
+  while (sel.options.length > 1) sel.remove(1);
+  items.forEach(item => {
+    const o = document.createElement('option');
+    o.value = item; o.textContent = item;
+    sel.appendChild(o);
+  });
+  sel.value = val || '';
+}
+
+function setupEvents() {
+  const ids = ['f-regiao','f-uf','f-municipio','f-dep','f-pubpriv','f-area','f-curso','f-modalidade'];
+  ids.forEach(id => document.getElementById(id).addEventListener('change', onFilterChange));
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    ids.forEach(id => document.getElementById(id).value = '');
+    onFilterChange();
+  });
+  // Dependent filters
+  document.getElementById('f-regiao').addEventListener('change', () => {
+    const reg = document.getElementById('f-regiao').value;
+    const filteredUfs = reg ? DB.ufs.filter(u => DB.uf_regiao[u] === reg) : DB.ufs;
+    fillSelect('f-uf', filteredUfs);
+    document.getElementById('f-uf').dispatchEvent(new Event('change'));
+  });
+  document.getElementById('f-uf').addEventListener('change', () => {
+    const uf = document.getElementById('f-uf').value;
+    const muns = uf ? (DB.municipios_por_uf[uf] || []) : [];
+    fillSelect('f-municipio', muns);
+  });
+  document.getElementById('f-area').addEventListener('change', () => {
+    const area = document.getElementById('f-area').value;
+    const crs = area ? (DB.cursos_por_area[area] || []) : DB.cursos;
+    fillSelect('f-curso', crs);
+  });
+  // Table sorting
+  document.querySelectorAll('th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (sortCol === col) sortAsc = !sortAsc;
+      else { sortCol = col; sortAsc = col === 'ent' || col === 'uf' || col === 'mun' || col === 'dep'; }
+      renderTable();
+    });
+  });
+  document.getElementById('pg-prev').addEventListener('click', () => { page--; renderTable(); });
+  document.getElementById('pg-next').addEventListener('click', () => { page++; renderTable(); });
+}
+
+function onFilterChange() {
+  applyFilters();
+}
+
+function applyFilters() {
+  const fReg = document.getElementById('f-regiao').value;
+  const fUf = document.getElementById('f-uf').value;
+  const fMun = document.getElementById('f-municipio').value;
+  const fDep = document.getElementById('f-dep').value;
+  const fPP = document.getElementById('f-pubpriv').value;
+  const fArea = document.getElementById('f-area').value;
+  const fCurso = document.getElementById('f-curso').value;
+  const fMod = document.getElementById('f-modalidade').value;
+
+  // Set which mat column to use based on modalidade
+  activeMatIdx = fMod ? (MODALIDADE_IDX[fMod] || I_MAT) : I_MAT;
+
+  const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
+  const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
+  const munI = fMun ? DB.municipios.indexOf(fMun) : -1;
+  const depI = fDep ? DB.deps.indexOf(fDep) : -1;
+  const areaI = fArea ? DB.areas.indexOf(fArea) : -1;
+  const cursoI = fCurso ? DB.cursos.indexOf(fCurso) : -1;
+
+  const pubSet = fPP === 'pub' ? new Set() : null;
+  const privSet = fPP === 'priv' ? new Set() : null;
+  if (pubSet) DB.deps.forEach((d,i) => { if (PUB_DEPS.has(d)) pubSet.add(i); });
+  if (privSet) DB.deps.forEach((d,i) => { if (!PUB_DEPS.has(d)) privSet.add(i); });
+
+  filtered = DB.records.filter(r => {
+    if (regI >= 0 && r[I_REG] !== regI) return false;
+    if (ufI >= 0 && r[I_UF] !== ufI) return false;
+    if (munI >= 0 && r[I_MUN] !== munI) return false;
+    if (depI >= 0 && r[I_DEP] !== depI) return false;
+    if (pubSet && !pubSet.has(r[I_DEP])) return false;
+    if (privSet && !privSet.has(r[I_DEP])) return false;
+    if (areaI >= 0 && r[I_AREA] !== areaI) return false;
+    if (cursoI >= 0 && r[I_CURSO] !== cursoI) return false;
+    // If modalidade selected, only include records that have enrollments in that modality
+    if (fMod && r[activeMatIdx] === 0) return false;
+    return true;
+  });
+
+  updateKPIs();
+  updateCharts();
+  buildEntityTable();
+  page = 0;
+  renderTable();
+}
+
+// ---- KPIs ----
+function fmt(n) { return n.toLocaleString('pt-BR'); }
+function pct(a, b) {
+  if (!b) return '';
+  const v = ((a - b) / b * 100);
+  const sign = v >= 0 ? '+' : '';
+  return `${sign}${v.toFixed(1)}%`;
+}
+
+function updateKPIs() {
+  let m23=0, m24=0, m25=0;
+  const ents23 = new Set(), ents24 = new Set(), ents25 = new Set();
+  const crs23 = new Set(), crs24 = new Set(), crs25 = new Set();
+  for (const r of filtered) {
+    const mat = r[activeMatIdx];
+    if (r[I_ANO] === 2023) { m23 += mat; ents23.add(r[I_ENT]); crs23.add(r[I_CURSO]); }
+    else if (r[I_ANO] === 2024) { m24 += mat; ents24.add(r[I_ENT]); crs24.add(r[I_CURSO]); }
+    else if (r[I_ANO] === 2025) { m25 += mat; ents25.add(r[I_ENT]); crs25.add(r[I_CURSO]); }
+  }
+  document.getElementById('kpi-mat25').textContent = fmt(m25);
+  document.getElementById('kpi-mat24').textContent = fmt(m24);
+  document.getElementById('kpi-mat23').textContent = fmt(m23);
+  setDelta('kpi-delta25', m25, m24, 'vs 2024');
+  setDelta('kpi-delta24', m24, m23, 'vs 2023');
+  setDelta('kpi-delta23', m23, 0, '');
+  document.getElementById('kpi-delta23').textContent = '';
+
+  document.getElementById('kpi-ent').textContent = fmt(ents25.size);
+  setDelta('kpi-ent-delta', ents25.size, ents24.size, 'vs 2024');
+
+  document.getElementById('kpi-cursos').textContent = fmt(crs25.size);
+  setDelta('kpi-cursos-delta', crs25.size, crs24.size, 'vs 2024');
+}
+
+function setDelta(id, curr, prev, label) {
+  const el = document.getElementById(id);
+  if (!prev) { el.textContent = ''; return; }
+  const p = pct(curr, prev);
+  el.textContent = `${p} ${label}`;
+  el.className = 'delta ' + (curr >= prev ? 'up' : 'down');
+}
+
+// ---- Charts ----
+function initCharts() {
+  const common = { responsive: true, maintainAspectRatio: false };
+
+  chartEvolucao = new Chart(document.getElementById('chart-evolucao'), {
+    type: 'bar',
+    data: { labels: ['2023','2024','2025'], datasets: [] },
+    options: { ...common, plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => fmt(v) } } } }
+  });
+  chartDep = new Chart(document.getElementById('chart-dep'), {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+    options: { ...common, plugins: { legend: { position: 'right' } } }
+  });
+  chartAreas = new Chart(document.getElementById('chart-areas'), {
+    type: 'bar',
+    data: { labels: [], datasets: [] },
+    options: { ...common, indexAxis: 'y', plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { callback: v => fmt(v) } } } }
+  });
+  chartCursos = new Chart(document.getElementById('chart-cursos'), {
+    type: 'bar',
+    data: { labels: [], datasets: [] },
+    options: { ...common, indexAxis: 'y', plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { callback: v => fmt(v) } } } }
+  });
+}
+
+function updateCharts() {
+  // Evolution
+  let byYear = {2023:0, 2024:0, 2025:0};
+  let depMat = {};
+  let areaMat = {};
+  let cursoMat = {};
+  for (const r of filtered) {
+    const mat = r[activeMatIdx];
+    byYear[r[I_ANO]] = (byYear[r[I_ANO]]||0) + mat;
+    if (r[I_ANO] === 2025) {
+      const dep = DB.deps[r[I_DEP]] || '?';
+      depMat[dep] = (depMat[dep]||0) + mat;
+      const area = DB.areas[r[I_AREA]] || '?';
+      areaMat[area] = (areaMat[area]||0) + mat;
+      const curso = DB.cursos[r[I_CURSO]] || '?';
+      cursoMat[curso] = (cursoMat[curso]||0) + mat;
+    }
+  }
+
+  chartEvolucao.data.datasets = [{
+    data: [byYear[2023], byYear[2024], byYear[2025]],
+    backgroundColor: ['#C2D8E5','#3A6E9E','#1F3044'],
+    borderRadius: 0,
+  }];
+  chartEvolucao.update();
+
+  // Dep donut
+  const depEntries = Object.entries(depMat).sort((a,b) => b[1]-a[1]);
+  chartDep.data.labels = depEntries.map(e => `${e[0]}: ${fmt(e[1])}`);
+  chartDep.data.datasets[0].data = depEntries.map(e => e[1]);
+  chartDep.data.datasets[0].backgroundColor = depEntries.map(e => DEP_COLORS[e[0]] || '#95a5a6');
+  chartDep.update();
+
+  // Top 10 areas
+  const topAreas = Object.entries(areaMat).sort((a,b) => b[1]-a[1]).slice(0,10).reverse();
+  chartAreas.data.labels = topAreas.map(e => e[0].length > 35 ? e[0].substring(0,35)+'…' : e[0]);
+  chartAreas.data.datasets = [{ data: topAreas.map(e => e[1]), backgroundColor: '#1F3044', borderRadius: 0 }];
+  chartAreas.update();
+
+  // Top 10 cursos
+  const topCursos = Object.entries(cursoMat).sort((a,b) => b[1]-a[1]).slice(0,10).reverse();
+  chartCursos.data.labels = topCursos.map(e => e[0].length > 35 ? e[0].substring(0,35)+'…' : e[0]);
+  chartCursos.data.datasets = [{ data: topCursos.map(e => e[1]), backgroundColor: '#E3120B', borderRadius: 0 }];
+  chartCursos.update();
+}
+
+// ---- Entity Table ----
+function buildEntityTable() {
+  // Aggregate by entity: sum mat per year, capture UF/mun/dep from first record
+  const map = new Map();
+  for (const r of filtered) {
+    const key = r[I_ENT];
+    if (!map.has(key)) {
+      map.set(key, {
+        ent: DB.entidades[r[I_ENT]] || '?',
+        uf: DB.ufs[r[I_UF]] || '?',
+        mun: DB.municipios[r[I_MUN]] || '?',
+        dep: DB.deps[r[I_DEP]] || '?',
+        m23: 0, m24: 0, m25: 0,
+      });
+    }
+    const entry = map.get(key);
+    const mat = r[activeMatIdx];
+    if (r[I_ANO] === 2023) entry.m23 += mat;
+    else if (r[I_ANO] === 2024) entry.m24 += mat;
+    else if (r[I_ANO] === 2025) entry.m25 += mat;
+  }
+  entityTable = Array.from(map.values());
+  // compute var
+  entityTable.forEach(e => {
+    e.var = e.m23 > 0 ? ((e.m25 - e.m23) / e.m23 * 100) : (e.m25 > 0 ? 999 : 0);
+  });
+}
+
+function renderTable() {
+  // Sort
+  const col = sortCol;
+  entityTable.sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (typeof va === 'string') { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+    if (va < vb) return sortAsc ? -1 : 1;
+    if (va > vb) return sortAsc ? 1 : -1;
+    return 0;
+  });
+
+  const total = entityTable.length;
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  if (page >= totalPages) page = Math.max(0, totalPages - 1);
+
+  const start = page * PAGE_SIZE;
+  const slice = entityTable.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = slice.map(e => {
+    const varStr = e.m23 > 0
+      ? `<span style="

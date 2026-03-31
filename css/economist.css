@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════════════════════
+   ECONOMIST.CSS — Shared visual identity for danieldebonis.com
+   Palette, typography, layout primitives
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Palette tokens ── */
+:root {
+  --e-red: #E3120B;
+  --e-black: #1D1D1B;
+  --e-blue-dark: #1F3044;
+  --e-blue-mid: #3A6E9E;
+  --e-blue-light: #C2D8E5;
+  --e-coral: #D45D5D;
+  --e-teal: #388E8E;
+  --e-grey: #76797B;
+  --e-grey-light: #D4D4D4;
+  --e-grey-bg: #F5F5F5;
+  --e-white: #ffffff;
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Franklin Gothic Medium', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--e-white);
+  color: var(--e-black);
+  line-height: 1.6;
+}
+
+/* ── Typography ── */
+h1, h2, h3, h4 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--e-black);
+}
+
+/* ── Red topline ── */
+.economist-topline {
+  height: 4px;
+  background: var(--e-red);
+  width: 100%;
+}
+
+/* ── Navigation ── */
+.site-nav {
+  border-bottom: 1px solid var(--e-grey-light);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.site-nav .nav-brand {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--e-black);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+}
+.site-nav .nav-brand:hover { color: var(--e-red); }
+.site-nav .nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+.site-nav .nav-links a {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--e-grey);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.site-nav .nav-links a:hover,
+.site-nav .nav-links a.active { color: var(--e-red); }
+
+/* ── Container ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+/* ── Footer ── */
+.site-footer {
+  border-top: 1px solid var(--e-grey-light);
+  margin-top: 60px;
+  padding: 24px 32px;
+  font-size: 0.75rem;
+  color: var(--e-grey);
+  text-align: center;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.site-footer a { color: var(--e-grey); }
+.site-footer a:hover { color: var(--e-red); }
+
+/* ── Cards (dashboard) ── */
+.card {
+  background: var(--e-white);
+  border: 1px solid var(--e-grey-light);
+  border-radius: 0;
+  padding: 18px;
+}
+.card h3 {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .site-nav { flex-direction: column; gap: 10px; padding: 14px 20px; }
+  .site-nav .nav-links { gap: 16px; }
+  .container { padding: 0 16px; }
+}

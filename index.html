@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daniel De Bonis</title>
+<link rel="stylesheet" href="css/economist.css">
+<style>
+  .hero {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+    margin-top: 52px;
+    margin-bottom: 48px;
+  }
+  .hero-photo {
+    flex-shrink: 0;
+    width: 260px;
+  }
+  .hero-photo img {
+    width: 100%;
+    display: block;
+    filter: grayscale(15%);
+  }
+  .hero-text {
+    flex: 1;
+  }
+  .hero-text h1 {
+    font-size: 2.3rem;
+    margin-bottom: 18px;
+    letter-spacing: -0.5px;
+  }
+  .hero-text p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.75;
+    color: var(--e-black);
+    margin-bottom: 14px;
+  }
+  .social-links {
+    margin-top: 20px;
+    display: flex;
+    gap: 24px;
+  }
+  .social-links a {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .social-links a:hover { color: var(--e-red); }
+
+  /* ── Temas de interesse ── */
+  .section-topics {
+    border-top: 1px solid var(--e-grey-light);
+    padding-top: 36px;
+    margin-bottom: 48px;
+  }
+  .section-topics h2 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    color: var(--e-black);
+  }
+  .topics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 40px;
+  }
+  .topic-item {
+    font-size: 0.9rem;
+    color: var(--e-black);
+    padding-left: 16px;
+    border-left: 3px solid var(--e-red);
+    line-height: 1.5;
+  }
+
+  /* ── Dashboards preview ── */
+  .section-dashboards {
+    border-top: 1px solid var(--e-grey-light);
+    padding-top: 36px;
+  }
+  .section-dashboards h2 {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .dash-card {
+    border: 1px solid var(--e-grey-light);
+    padding: 24px;
+    text-decoration: none;
+    color: var(--e-black);
+    transition: border-color 0.15s;
+  }
+  .dash-card:hover { border-color: var(--e-red); }
+  .dash-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+  .dash-card p {
+    font-size: 0.82rem;
+    color: var(--e-grey);
+    line-height: 1.55;
+  }
+  .dash-card .dash-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-red);
+  }
+
+  @media (max-width: 700px) {
+    .hero { flex-direction: column; gap: 24px; margin-top: 32px; }
+    .hero-photo { width: 160px; }
+    .topics-grid { grid-template-columns: 1fr; }
+    .dash-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="economist-topline"></div>
+
+<nav class="site-nav">
+  <a href="index.html" class="nav-brand">Daniel De Bonis</a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Home</a></li>
+    <li><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li><a href="dashboard-ept/index.html">Dashboard EPT</a></li>
+    <li><a href="dashboard-pisa/index.html">Dashboard PISA</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <div class="hero-photo">
+      <img src="assets/daniel-de-bonis.jpg" alt="Daniel De Bonis">
+    </div>
+    <div class="hero-text">
+      <h1>Daniel De Bonis</h1>
+      <p>Especialista em políticas educacionais, com larga experiência como gestor de organizações públicas e privadas, pesquisador e consultor. Mestre e Doutor em Administração Pública e Governo pela EAESP-FGV, com Especialização pelo Programa de Liderança Executiva em Desenvolvimento da Primeira Infância da Universidade de Harvard com INSPER e NCPI.</p>
+      <p>Foi Diretor de Políticas Educacionais da Fundação Lemann, Diretor Executivo da Fundação Raízen, Secretário-Adjunto de Educação no Município de São Paulo, membro da carreira de Analistas de Política Pública e Gestão Governamental da Prefeitura de São Paulo e pesquisador-visitante na School of International and Public Affairs da Columbia University, com bolsa CAPES-Fulbright.</p>
+      <p>Atualmente desenvolvendo atividades de consultoria e pesquisa em avaliações educacionais, educação profissional e tecnológica e parcerias público-privadas na educação.</p>
+      <p>Aqui você encontrará o resultado de alguns mini-projetos pessoais (como dashboards interativos da Educação Profissionalizante e do PISA) e, futuramente, também textos e artigos.</p>
+      <p>Para contato, sugiro alguma das redes abaixo.</p>
+      <div class="social-links">
+        <a href="https://www.linkedin.com/in/dbonis" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://substack.com/@danieldebonis" target="_blank" rel="noopener">Substack</a>
+        <a href="https://x.com/danieldebonis" target="_blank" rel="noopener">Twitter / X</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Temas ── -->
+  <div class="section-topics">
+    <h2>Temas de interesse</h2>
+    <div class="topics-grid">
+      <div class="topic-item">Determinantes do desempenho educacional</div>
+      <div class="topic-item">Avaliações educacionais</div>
+      <div class="topic-item">Educação profissional e tecnológica</div>
+      <div class="topic-item">Parcerias público-privadas na educação</div>
+    </div>
+  </div>
+
+  <!-- ── Dashboards ── -->
+  <div class="section-dashboards">
+    <h2>Visualizações interativas</h2>
+    <div class="dash-grid">
+      <a href="dashboard-ept/index.html" class="dash-card">
+        <h3>Cursos Técnicos no Brasil</h3>
+        <p>Microdados do Censo Escolar (INEP) sobre a educação profissional técnica de nível médio, com filtros por ano, região, rede e eixo tecnológico. Dados de 2023 a 2025.</p>
+        <span class="dash-tag">Explorar dashboard &rarr;</span>
+      </a>
+      <a href="dashboard-pisa/index.html" class="dash-card">
+        <h3>PISA 2022 — Matemática</h3>
+        <p>Comparação interativa das distribuições de proficiência em matemática no PISA 2022. Selecione até 4 países e compare curvas de distribuição, médias e proporções por nível.</p>
+        <span class="dash-tag">Explorar dashboard &rarr;</span>
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <p>&copy; 2026 Daniel De Bonis. Dados: INEP/Censo Escolar, OECD/PISA.</p>
+</footer>
+
+</body>
+</html>
