@@ -54,7 +54,6 @@
   }
   .social-links a:hover { color: var(--e-red); }
 
-  /* ── Temas de interesse ── */
   .section-topics {
     border-top: 1px solid var(--e-grey-light);
     padding-top: 36px;
@@ -78,7 +77,6 @@
     line-height: 1.5;
   }
 
-  /* ── Dashboards preview ── */
   .section-dashboards {
     border-top: 1px solid var(--e-grey-light);
     padding-top: 36px;
@@ -119,6 +117,26 @@
     color: var(--e-red);
   }
 
+  /* Language toggle */
+  .lang-toggle {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+    cursor: pointer;
+    user-select: none;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .lang-toggle span { transition: color 0.15s; }
+  .lang-toggle span.active { color: var(--e-red); }
+  .lang-toggle span:hover { color: var(--e-red); }
+
+  /* Hide/show by language */
+  [data-lang="en"] { display: none; }
+  html.lang-en [data-lang="en"] { display: revert; }
+  html.lang-en [data-lang="pt"] { display: none; }
+
   @media (max-width: 700px) {
     .hero { flex-direction: column; gap: 24px; margin-top: 32px; }
     .hero-photo { width: 160px; }
@@ -134,26 +152,44 @@
 <nav class="site-nav">
   <ul class="nav-links">
     <li><a href="index.html" class="active">Home</a></li>
-    <li><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li data-lang="pt"><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li data-lang="en"><a href="#" style="opacity:0.45; pointer-events:none;">Articles</a></li>
     <li><a href="dashboard-ept/index.html">Dashboard EPT</a></li>
     <li><a href="dashboard-pisa/index.html">Dashboard PISA</a></li>
+    <li class="lang-toggle" onclick="toggleLang()">
+      <span id="lang-pt" class="active">PT</span> | <span id="lang-en">EN</span>
+    </li>
   </ul>
 </nav>
 
 <div class="container">
 
-  <!-- ── Hero ── -->
+  <!-- Hero -->
   <div class="hero">
     <div class="hero-photo">
       <img src="assets/daniel-de-bonis.jpg" alt="Daniel De Bonis">
     </div>
     <div class="hero-text">
       <h1>Daniel De Bonis</h1>
-      <p>Sou um especialista em políticas educacionais, com larga experiência como gestor de organizações públicas e privadas, pesquisador e consultor. Possuo Mestrado e Doutorado em Administração Pública e Governo pela EAESP-FGV, e Especialização pelo Programa de Liderança Executiva em Desenvolvimento da Primeira Infância da Universidade de Harvard com INSPER e NCPI.</p>
-      <p>Fui Diretor de Políticas Educacionais da Fundação Lemann, Diretor Executivo da Fundação Raízen, Secretário-Adjunto de Educação no Município de São Paulo, membro da carreira de Analista de Políticas Públicas e Gestão Governamental da Prefeitura de São Paulo e pesquisador-visitante na School of International and Public Affairs da Columbia University, com bolsa CAPES-Fulbright.</p>
-      <p>Atualmente desenvolvo atividades de consultoria e pesquisa em avaliações educacionais, educação profissional e tecnológica e parcerias público-privadas na educação.</p>
-      <p>Aqui você encontrará o resultado de alguns mini-projetos pessoais (como dashboards interativos da Educação Profissionalizante e do PISA) e, futuramente, também textos e artigos.</p>
-      <p>Para contato, sugiro alguma das redes abaixo.</p>
+
+      <!-- PT -->
+      <div data-lang="pt">
+        <p>Sou um especialista em pol&iacute;ticas educacionais baseado em S&atilde;o Paulo, com larga experi&ecirc;ncia como gestor de organiza&ccedil;&otilde;es p&uacute;blicas e privadas, pesquisador e consultor. Possuo Mestrado e Doutorado em Administra&ccedil;&atilde;o P&uacute;blica e Governo pela EAESP-FGV, e Especializa&ccedil;&atilde;o pelo Programa de Lideran&ccedil;a Executiva em Desenvolvimento da Primeira Inf&acirc;ncia da Universidade de Harvard com INSPER e NCPI.</p>
+        <p>Fui Diretor de Pol&iacute;ticas Educacionais da Funda&ccedil;&atilde;o Lemann, Diretor Executivo da Funda&ccedil;&atilde;o Ra&iacute;zen, Secret&aacute;rio-Adjunto de Educa&ccedil;&atilde;o no Munic&iacute;pio de S&atilde;o Paulo, membro da carreira de Analista de Pol&iacute;ticas P&uacute;blicas e Gest&atilde;o Governamental da Prefeitura de S&atilde;o Paulo e pesquisador-visitante na School of International and Public Affairs da Columbia University, com bolsa CAPES-Fulbright.</p>
+        <p>Atualmente desenvolvo atividades de consultoria e pesquisa em avalia&ccedil;&otilde;es educacionais, educa&ccedil;&atilde;o profissional e tecnol&oacute;gica e parcerias p&uacute;blico-privadas na educa&ccedil;&atilde;o.</p>
+        <p>Aqui voc&ecirc; encontrar&aacute; o resultado de alguns mini-projetos pessoais (como dashboards interativos da Educa&ccedil;&atilde;o Profissionalizante e do PISA) e, futuramente, tamb&eacute;m textos e artigos.</p>
+        <p>Para contato, sugiro alguma das redes abaixo.</p>
+      </div>
+
+      <!-- EN -->
+      <div data-lang="en">
+        <p>I am an education policy specialist based in S&atilde;o Paulo, Brazil, with extensive experience as a manager of public and private organizations, researcher, and consultant. I hold a Ph.D. in Public Administration and Government from Funda&ccedil;&atilde;o Get&uacute;lio Vargas, and a Specialization from Harvard University's Executive Leadership Program in Early Childhood Development, in partnership with INSPER and NCPI.</p>
+        <p>I have served as Director of Education Policy at Funda&ccedil;&atilde;o Lemann, Executive Director of Funda&ccedil;&atilde;o Ra&iacute;zen, Deputy Secretary of Education for the City of S&atilde;o Paulo, member of the Public Policy Analyst and Government Management career track at the S&atilde;o Paulo City Government, and visiting researcher at Columbia University's School of International and Public Affairs as a Fulbright fellow.</p>
+        <p>I currently work as a consultant and researcher in educational assessment, technical and vocational education, and public-private partnerships in education.</p>
+        <p>Here you will find the results of a few personal side projects (such as interactive dashboards on Vocational Education and PISA) and, in the future, essays and articles as well.</p>
+        <p>For inquiries, please reach out through the links below.</p>
+      </div>
+
       <div class="social-links">
         <a href="https://www.linkedin.com/in/dbonis" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://substack.com/@danieldebonis" target="_blank" rel="noopener">Substack</a>
@@ -162,30 +198,50 @@
     </div>
   </div>
 
-  <!-- ── Temas ── -->
+  <!-- Topics -->
   <div class="section-topics">
-    <h2>Temas de interesse</h2>
+    <h2 data-lang="pt">Temas de interesse</h2>
+    <h2 data-lang="en">Research interests</h2>
     <div class="topics-grid">
-      <div class="topic-item">Determinantes do desempenho educacional</div>
-      <div class="topic-item">Avaliações educacionais</div>
-      <div class="topic-item">Educação profissional e tecnológica</div>
-      <div class="topic-item">Parcerias público-privadas na educação</div>
+      <div class="topic-item" data-lang="pt">Determinantes do desempenho educacional</div>
+      <div class="topic-item" data-lang="en">Determinants of educational performance</div>
+      <div class="topic-item" data-lang="pt">Avalia&ccedil;&otilde;es educacionais</div>
+      <div class="topic-item" data-lang="en">Educational assessment</div>
+      <div class="topic-item" data-lang="pt">Educa&ccedil;&atilde;o profissional e tecnol&oacute;gica</div>
+      <div class="topic-item" data-lang="en">Technical and vocational education</div>
+      <div class="topic-item" data-lang="pt">Parcerias p&uacute;blico-privadas na educa&ccedil;&atilde;o</div>
+      <div class="topic-item" data-lang="en">Public-private partnerships in education</div>
     </div>
   </div>
 
-  <!-- ── Dashboards ── -->
+  <!-- Dashboards -->
   <div class="section-dashboards">
-    <h2>Visualizações interativas</h2>
+    <h2 data-lang="pt">Visualiza&ccedil;&otilde;es interativas</h2>
+    <h2 data-lang="en">Interactive dashboards</h2>
     <div class="dash-grid">
       <a href="dashboard-ept/index.html" class="dash-card">
-        <h3>Cursos Técnicos no Brasil</h3>
-        <p>Microdados do Censo Escolar (INEP) sobre a educação profissional técnica de nível médio, com filtros por ano, região, rede e eixo tecnológico. Dados de 2023 a 2025.</p>
-        <span class="dash-tag">Explorar dashboard &rarr;</span>
+        <div data-lang="pt">
+          <h3>Cursos T&eacute;cnicos no Brasil</h3>
+          <p>Microdados do Censo Escolar (INEP) sobre a educa&ccedil;&atilde;o profissional t&eacute;cnica de n&iacute;vel m&eacute;dio, com filtros por ano, regi&atilde;o, rede e eixo tecnol&oacute;gico. Dados de 2023 a 2025.</p>
+        </div>
+        <div data-lang="en">
+          <h3>Technical Courses in Brazil</h3>
+          <p>School Census microdata (INEP) on upper-secondary vocational education, with filters by year, region, network, and field of study. Data from 2023 to 2025.</p>
+        </div>
+        <span class="dash-tag" data-lang="pt">Explorar dashboard &rarr;</span>
+        <span class="dash-tag" data-lang="en">Explore dashboard &rarr;</span>
       </a>
       <a href="dashboard-pisa/index.html" class="dash-card">
-        <h3>PISA 2022 — Matemática</h3>
-        <p>Comparação interativa das distribuições de proficiência em matemática no PISA 2022. Selecione até 4 países e compare curvas de distribuição, médias e proporções por nível.</p>
-        <span class="dash-tag">Explorar dashboard &rarr;</span>
+        <div data-lang="pt">
+          <h3>PISA 2022</h3>
+          <p>Compara&ccedil;&atilde;o interativa das distribui&ccedil;&otilde;es de profici&ecirc;ncia no PISA 2022 em Matem&aacute;tica, Leitura e Ci&ecirc;ncias. Selecione at&eacute; 4 pa&iacute;ses e compare curvas de distribui&ccedil;&atilde;o, m&eacute;dias e propor&ccedil;&otilde;es por n&iacute;vel.</p>
+        </div>
+        <div data-lang="en">
+          <h3>PISA 2022</h3>
+          <p>Interactive comparison of PISA 2022 proficiency distributions in Mathematics, Reading, and Science. Select up to 4 countries and compare distribution curves, means, and proficiency levels.</p>
+        </div>
+        <span class="dash-tag" data-lang="pt">Explorar dashboard &rarr;</span>
+        <span class="dash-tag" data-lang="en">Explore dashboard &rarr;</span>
       </a>
     </div>
   </div>
@@ -193,8 +249,29 @@
 </div>
 
 <footer class="site-footer">
-  <p>&copy; 2026 Daniel De Bonis. Dados: INEP/Censo Escolar, OECD/PISA.</p>
+  <p>&copy; 2026 Daniel De Bonis. Data: INEP/School Census, OECD/PISA.</p>
 </footer>
 
+<script>
+function toggleLang() {
+  const html = document.documentElement;
+  const isEn = html.classList.toggle('lang-en');
+  document.getElementById('lang-en').classList.toggle('active', isEn);
+  document.getElementById('lang-pt').classList.toggle('active', !isEn);
+  html.lang = isEn ? 'en' : 'pt-BR';
+  localStorage.setItem('lang', isEn ? 'en' : 'pt');
+}
+
+// Restore saved preference
+(function() {
+  const saved = localStorage.getItem('lang');
+  if (saved === 'en') {
+    document.documentElement.classList.add('lang-en');
+    document.documentElement.lang = 'en';
+    document.getElementById('lang-en').classList.add('active');
+    document.getElementById('lang-pt').classList.remove('active');
+  }
+})();
+</script>
 </body>
 </html>
