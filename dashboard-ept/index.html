@@ -199,6 +199,14 @@ footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--mut
           <option value="eja">EJA</option>
         </select>
       </div>
+      <div class="filter-group">
+        <label>Sistema S</label>
+        <select id="f-sistemaS">
+          <option value="">Todos</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
       <div class="filter-actions">
         <button class="btn-clear" id="btn-clear">Limpar filtros</button>
       </div>
@@ -243,6 +251,16 @@ footer { text-align: center; padding: 20px; font-size: 0.75rem; color: var(--mut
     <div class="chart-card">
       <h3>Matrículas por Dependência Administrativa (2025)</h3>
       <div class="chart-container"><canvas id="chart-dep"></canvas></div>
+    </div>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Matrículas por UF (2025)</h3>
+      <div class="chart-container" style="height:400px;"><canvas id="chart-uf"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Matrículas por Modalidade (2025)</h3>
+      <div class="chart-container"><canvas id="chart-modalidade"></canvas></div>
     </div>
   </div>
   <div class="charts-row">
@@ -302,16 +320,16 @@ const PAGE_SIZE = 50;
 // Light record indices: [ano, reg, uf, dep, area, mat, mat_int, mat_nm, mat_conc, mat_subs, mat_eja, n_ent, n_cursos]
 const I_ANO=0, I_REG=1, I_UF=2, I_DEP=3, I_AREA=4, I_MAT=5;
 const I_MAT_INT=6, I_MAT_NM=7, I_MAT_CONC=8, I_MAT_SUBS=9, I_MAT_EJA=10;
-const I_N_ENT=11, I_N_CURSOS=12;
+const I_N_ENT=11, I_N_CURSOS=12, I_MAT_SS=13;
 const MODALIDADE_IDX = { 'int': I_MAT_INT, 'nm': I_MAT_NM, 'conc': I_MAT_CONC, 'subs': I_MAT_SUBS, 'eja': I_MAT_EJA };
 let activeMatIdx = I_MAT;
 
 // Entity record indices (heavy file): [ano, reg, uf, mun, dep, ent, area, curso, mat, ...]
 const EI_ANO=0, EI_REG=1, EI_UF=2, EI_MUN=3, EI_DEP=4, EI_ENT=5, EI_AREA=6, EI_CURSO=7, EI_MAT=8;
-const EI_MAT_INT=9, EI_MAT_NM=10, EI_MAT_CONC=11, EI_MAT_SUBS=12, EI_MAT_EJA=13;
+const EI_MAT_INT=9, EI_MAT_NM=10, EI_MAT_CONC=11, EI_MAT_SUBS=12, EI_MAT_EJA=13, EI_IS_SS=14;
 
 // Charts
-let chartEvolucao, chartDep, chartAreas, chartCursos;
+let chartEvolucao, chartDep, chartAreas, chartCursos, chartUf, chartModalidade;
 
 const COLORS = ['#E3120B','#1F3044','#3A6E9E','#D45D5D','#388E8E','#C2D8E5','#76797B','#1D1D1B','#A3120B','#5A9E9E'];
 const DEP_COLORS = {'Federal':'#1F3044','Estadual':'#3A6E9E','Municipal':'#388E8E','Privada':'#E3120B'};
@@ -371,7 +389,7 @@ function fillSelect(id, items, blankLabel) {
 }
 
 function setupEvents() {
-  const ids = ['f-regiao','f-uf','f-municipio','f-dep','f-pubpriv','f-area','f-curso','f-modalidade'];
+  const ids = ['f-regiao','f-uf','f-municipio','f-dep','f-pubpriv','f-area','f-curso','f-modalidade','f-sistemaS'];
   ids.forEach(id => document.getElementById(id).addEventListener('change', onFilterChange));
   document.getElementById('btn-clear').addEventListener('click', () => {
     ids.forEach(id => document.getElementById(id).value = '');
@@ -420,6 +438,7 @@ function applyFilters() {
   const fArea = document.getElementById('f-area').value;
   const fCurso = document.getElementById('f-curso').value;
   const fMod = document.getElementById('f-modalidade').value;
+  const fSS = document.getElementById('f-sistemaS').value;
 
   // Set which mat column to use based on modalidade
   activeMatIdx = fMod ? (MODALIDADE_IDX[fMod] || I_MAT) : I_MAT;
@@ -436,10 +455,10 @@ function applyFilters() {
   if (pubSet) DB.deps.forEach((d,i) => { if (PUB_DEPS.has(d)) pubSet.add(i); });
   if (privSet) DB.deps.forEach((d,i) => { if (!PUB_DEPS.has(d)) privSet.add(i); });
 
-  const needsDetail = (munI >= 0 || cursoI >= 0);
+  const needsDetail = (munI >= 0 || cursoI >= 0 || fSS);
 
   if (needsDetail && DB_ENT) {
-    // Use entity-level data when mun/curso filters are active
+    // Use entity-level data when mun/curso/sistemaS filters are active
     const eMatIdx = fMod ? ({int:EI_MAT_INT,nm:EI_MAT_NM,conc:EI_MAT_CONC,subs:EI_MAT_SUBS,eja:EI_MAT_EJA}[fMod]||EI_MAT) : EI_MAT;
     // Aggregate entity records into light-format for KPIs/charts
     const agg = {};
@@ -453,10 +472,12 @@ function applyFilters() {
       if (areaI >= 0 && r[EI_AREA] !== areaI) continue;
       if (cursoI >= 0 && r[EI_CURSO] !== cursoI) continue;
       if (fMod && r[eMatIdx] === 0) continue;
+      if (fSS === 'sim' && r[EI_IS_SS] !== 1) continue;
+      if (fSS === 'nao' && r[EI_IS_SS] !== 0) continue;
 
       const key = r[EI_ANO]+','+r[EI_REG]+','+r[EI_UF]+','+r[EI_DEP]+','+r[EI_AREA];
       if (!agg[key]) {
-        agg[key] = [r[EI_ANO], r[EI_REG], r[EI_UF], r[EI_DEP], r[EI_AREA], 0,0,0,0,0,0, 0, 0];
+        agg[key] = [r[EI_ANO], r[EI_REG], r[EI_UF], r[EI_DEP], r[EI_AREA], 0,0,0,0,0,0, 0, 0, 0];
       }
       const a = agg[key];
       a[5] += r[EI_MAT];
@@ -467,6 +488,7 @@ function applyFilters() {
       a[10] += r[EI_MAT_EJA];
       a[11] += 1; // n_ent approximation
       a[12] += 1; // n_cursos approximation
+      if (r[EI_IS_SS]) a[13] += r[EI_MAT]; // mat_ss
     }
     filtered = Object.values(agg);
   } else {
@@ -559,6 +581,18 @@ function initCharts() {
     options: { ...common, indexAxis: 'y', plugins: { legend: { display: false } },
       scales: { x: { beginAtZero: true, ticks: { callback: v => fmt(v) } } } }
   });
+  chartUf = new Chart(document.getElementById('chart-uf'), {
+    type: 'bar',
+    data: { labels: [], datasets: [] },
+    options: { ...common, indexAxis: 'y', plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { callback: v => fmt(v) } } } }
+  });
+  chartModalidade = new Chart(document.getElementById('chart-modalidade'), {
+    type: 'bar',
+    data: { labels: [], datasets: [] },
+    options: { ...common, plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => fmt(v) } } } }
+  });
 }
 
 function updateCharts() {
@@ -566,6 +600,8 @@ function updateCharts() {
   let byYear = {2023:0, 2024:0, 2025:0};
   let depMat = {};
   let areaMat = {};
+  let ufMat = {};
+  let modMat = {int:0, nm:0, conc:0, subs:0, eja:0};
   for (const r of filtered) {
     const mat = r[activeMatIdx];
     byYear[r[I_ANO]] = (byYear[r[I_ANO]]||0) + mat;
@@ -574,6 +610,13 @@ function updateCharts() {
       depMat[dep] = (depMat[dep]||0) + mat;
       const area = DB.areas[r[I_AREA]] || '?';
       areaMat[area] = (areaMat[area]||0) + mat;
+      const uf = DB.ufs[r[I_UF]] || '?';
+      ufMat[uf] = (ufMat[uf]||0) + mat;
+      modMat.int += r[I_MAT_INT];
+      modMat.nm += r[I_MAT_NM];
+      modMat.conc += r[I_MAT_CONC];
+      modMat.subs += r[I_MAT_SUBS];
+      modMat.eja += r[I_MAT_EJA];
     }
   }
 
@@ -584,12 +627,34 @@ function updateCharts() {
   }];
   chartEvolucao.update();
 
-  // Dep donut
+  // Dep donut with percentages
   const depEntries = Object.entries(depMat).sort((a,b) => b[1]-a[1]);
-  chartDep.data.labels = depEntries.map(e => `${e[0]}: ${fmt(e[1])}`);
+  const depTotal = depEntries.reduce((s,e) => s+e[1], 0);
+  chartDep.data.labels = depEntries.map(e => {
+    const pctVal = depTotal ? (e[1]/depTotal*100).toFixed(1) : 0;
+    return `${e[0]}: ${fmt(e[1])} (${pctVal}%)`;
+  });
   chartDep.data.datasets[0].data = depEntries.map(e => e[1]);
   chartDep.data.datasets[0].backgroundColor = depEntries.map(e => DEP_COLORS[e[0]] || '#95a5a6');
   chartDep.update();
+
+  // UF bar chart (sorted descending)
+  const ufEntries = Object.entries(ufMat).sort((a,b) => b[1]-a[1]);
+  chartUf.data.labels = ufEntries.map(e => e[0]);
+  chartUf.data.datasets = [{ data: ufEntries.map(e => e[1]), backgroundColor: '#3A6E9E', borderRadius: 0 }];
+  chartUf.update();
+
+  // Modalidade bar chart
+  const modLabels = ['Integrado','Normal/Mag.','Concomitante','Subsequente','EJA'];
+  const modKeys = ['int','nm','conc','subs','eja'];
+  const modColors = ['#1F3044','#76797B','#3A6E9E','#C2D8E5','#388E8E'];
+  chartModalidade.data.labels = modLabels;
+  chartModalidade.data.datasets = [{
+    data: modKeys.map(k => modMat[k]),
+    backgroundColor: modColors,
+    borderRadius: 0,
+  }];
+  chartModalidade.update();
 
   // Top 10 areas
   const topAreas = Object.entries(areaMat).sort((a,b) => b[1]-a[1]).slice(0,10).reverse();
@@ -614,6 +679,7 @@ function updateCursosChart() {
   const fPP = document.getElementById('f-pubpriv').value;
   const fArea = document.getElementById('f-area').value;
   const fMod = document.getElementById('f-modalidade').value;
+  const fSS2 = document.getElementById('f-sistemaS').value;
   const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
   const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
   const depI = fDep ? DB.deps.indexOf(fDep) : -1;
@@ -634,6 +700,8 @@ function updateCursosChart() {
     if (privSet && !privSet.has(r[EI_DEP])) continue;
     if (areaI >= 0 && r[EI_AREA] !== areaI) continue;
     if (fMod && r[eMatIdx] === 0) continue;
+    if (fSS2 === 'sim' && r[EI_IS_SS] !== 1) continue;
+    if (fSS2 === 'nao' && r[EI_IS_SS] !== 0) continue;
     const curso = DB.cursos[r[EI_CURSO]] || '?';
     cursoMat[curso] = (cursoMat[curso]||0) + r[eMatIdx];
   }
@@ -657,6 +725,7 @@ function buildEntityTable() {
   const fArea = document.getElementById('f-area').value;
   const fCurso = document.getElementById('f-curso').value;
   const fMod = document.getElementById('f-modalidade').value;
+  const fSS3 = document.getElementById('f-sistemaS').value;
   const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
   const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
   const munI = fMun ? DB.municipios.indexOf(fMun) : -1;
@@ -680,6 +749,8 @@ function buildEntityTable() {
     if (areaI >= 0 && r[EI_AREA] !== areaI) continue;
     if (cursoI >= 0 && r[EI_CURSO] !== cursoI) continue;
     if (fMod && r[eMatIdx] === 0) continue;
+    if (fSS3 === 'sim' && r[EI_IS_SS] !== 1) continue;
+    if (fSS3 === 'nao' && r[EI_IS_SS] !== 0) continue;
 
     const key = r[EI_ENT];
     if (!map.has(key)) {
