@@ -35,7 +35,7 @@
     color: var(--e-black);
   }
   .selectors { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-  .selector-group { flex: 1; min-width: 200px; }
+  .selector-group { flex: 1; min-width: 180px; }
   .selector-group label {
     display: block;
     font-size: 0.72rem;
@@ -63,16 +63,25 @@
     margin-right: 6px;
     vertical-align: middle;
   }
-  #chart {
+  .chart-card {
     background: var(--e-white);
     border: 1px solid var(--e-grey-light);
     padding: 16px;
+    margin-bottom: 20px;
   }
+  .chart-card h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--e-black);
+  }
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .stats-table {
     background: var(--e-white);
     border: 1px solid var(--e-grey-light);
     padding: 20px 24px;
-    margin-top: 20px;
+    margin-bottom: 20px;
   }
   .stats-table h2 {
     font-family: Georgia, 'Times New Roman', serif;
@@ -81,7 +90,7 @@
     margin-bottom: 12px;
     color: var(--e-black);
   }
-  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--e-grey-light); }
   th {
     font-weight: 600;
@@ -91,6 +100,7 @@
     letter-spacing: 0.5px;
   }
   td.country-name { font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
   .source-footer {
     margin-top: 20px;
     font-size: 0.72rem;
@@ -98,7 +108,9 @@
     border-top: 1px solid var(--e-grey-light);
     padding-top: 14px;
   }
-
+  @media (max-width: 900px) {
+    .charts-row { grid-template-columns: 1fr; }
+  }
   @media (max-width: 700px) {
     .selectors { flex-direction: column; }
   }
@@ -109,7 +121,6 @@
 <div class="economist-topline"></div>
 
 <nav class="site-nav">
-  <a href="../index.html" class="nav-brand">Daniel De Bonis</a>
   <ul class="nav-links">
     <li><a href="../index.html">Home</a></li>
     <li><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
@@ -120,34 +131,65 @@
 
 <div class="container">
   <div class="dashboard-header">
-    <h1>PISA 2022 — Distribuições de Proficiência em Matemática</h1>
-    <p>Selecione até 4 países para comparar curvas de distribuição normal simulada a partir dos scores reportados</p>
+    <h1>PISA 2022 — Distribuições de Proficiência</h1>
+    <p>Selecione a disciplina e até 4 países para comparar curvas de distribuição e níveis de proficiência</p>
   </div>
 
   <div class="controls">
-    <h2>Selecione os países</h2>
+    <h2>Filtros</h2>
     <div class="selectors">
+      <div class="selector-group" style="max-width:180px;">
+        <label>Disciplina</label>
+        <select id="sel-subject" onchange="updateAll()">
+          <option value="math">Matemática</option>
+          <option value="reading">Leitura</option>
+          <option value="science">Ciências</option>
+        </select>
+      </div>
       <div class="selector-group">
         <label><span class="color-dot" style="background:#E3120B"></span>País 1</label>
-        <select id="sel1" onchange="updateChart()"><option value="">— Selecione —</option></select>
+        <select id="sel1" onchange="updateAll()"><option value="">— Selecione —</option></select>
       </div>
       <div class="selector-group">
         <label><span class="color-dot" style="background:#1F3044"></span>País 2</label>
-        <select id="sel2" onchange="updateChart()"><option value="">— Selecione —</option></select>
+        <select id="sel2" onchange="updateAll()"><option value="">— Selecione —</option></select>
       </div>
       <div class="selector-group">
         <label><span class="color-dot" style="background:#3A6E9E"></span>País 3</label>
-        <select id="sel3" onchange="updateChart()"><option value="">— Selecione —</option></select>
+        <select id="sel3" onchange="updateAll()"><option value="">— Selecione —</option></select>
       </div>
       <div class="selector-group">
         <label><span class="color-dot" style="background:#388E8E"></span>País 4</label>
-        <select id="sel4" onchange="updateChart()"><option value="">— Selecione —</option></select>
+        <select id="sel4" onchange="updateAll()"><option value="">— Selecione —</option></select>
       </div>
     </div>
   </div>
 
-  <div id="chart"></div>
+  <!-- Distribution curves chart -->
+  <div class="chart-card">
+    <h3 id="chart-title">Distribuições de Proficiência</h3>
+    <div id="chart-curves"></div>
+  </div>
 
+  <!-- Proficiency levels stacked bar chart -->
+  <div class="chart-card">
+    <h3 id="levels-title">Percentual de Alunos por Nível de Proficiência</h3>
+    <div id="chart-levels"></div>
+  </div>
+
+  <!-- Percentile comparison chart -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Percentis (P10, P25, P50, P75, P90)</h3>
+      <div id="chart-percentiles"></div>
+    </div>
+    <div class="chart-card">
+      <h3>Intervalo P10–P90 (Dispersão)</h3>
+      <div id="chart-range"></div>
+    </div>
+  </div>
+
+  <!-- Stats table -->
   <div class="stats-table" id="statsContainer" style="display:none">
     <h2>Estatísticas comparativas</h2>
     <table>
@@ -155,9 +197,14 @@
         <tr>
           <th>País</th>
           <th>Média</th>
-          <th>Desvio-padrão</th>
-          <th>% abaixo do Nível 1<br><span style="font-weight:normal;text-transform:none">(&lt; 357,77)</span></th>
-          <th>% no Nível 5 ou acima<br><span style="font-weight:normal;text-transform:none">(&ge; 606,99)</span></th>
+          <th>D.P.</th>
+          <th>P10</th>
+          <th>P25</th>
+          <th>P50</th>
+          <th>P75</th>
+          <th>P90</th>
+          <th id="th-below">% abaixo Nível 2</th>
+          <th id="th-above">% Nível 5+</th>
         </tr>
       </thead>
       <tbody id="statsBody"></tbody>
@@ -165,7 +212,7 @@
   </div>
 
   <div class="source-footer">
-    Fonte: OECD PISA 2022. Distribuições normais simuladas a partir da média e desvio-padrão reportados.
+    Fonte: OECD PISA 2022 — Volume I, Tables I.B1.2.1–3 e I.B1.3.1–3. Curvas de distribuição normal simuladas com média e desvio-padrão reportados. Proporções por nível com dados observados.
   </div>
 </div>
 
@@ -174,141 +221,269 @@
 </footer>
 
 <script>
-const COUNTRIES = [{"name":"Albania","mean":368.22,"sd":84.89},{"name":"Argentina","mean":377.53,"sd":74.42},{"name":"Australia","mean":487.08,"sd":99.26},{"name":"Austria","mean":487.27,"sd":93.58},{"name":"Baku (Azerbaijan)","mean":396.88,"sd":85.07},{"name":"Belgium","mean":489.49,"sd":96.33},{"name":"Brazil","mean":378.69,"sd":76.62},{"name":"Brunei Darussalam","mean":442.09,"sd":83.72},{"name":"Bulgaria","mean":417.3,"sd":96.75},{"name":"Cambodia","mean":336.4,"sd":72.54},{"name":"Canada","mean":496.95,"sd":94.01},{"name":"Chile","mean":411.7,"sd":76.63},{"name":"Chinese Taipei","mean":547.09,"sd":111.85},{"name":"Colombia","mean":382.7,"sd":72.82},{"name":"Costa Rica","mean":384.58,"sd":65.7},{"name":"Croatia","mean":463.11,"sd":87.95},{"name":"Cyprus","mean":418.31,"sd":100.66},{"name":"Czech Republic","mean":487.0,"sd":93.35},{"name":"Denmark","mean":489.27,"sd":81.56},{"name":"Dominican Republic","mean":339.11,"sd":53.99},{"name":"El Salvador","mean":343.47,"sd":59.43},{"name":"Estonia","mean":509.95,"sd":84.95},{"name":"Finland","mean":484.14,"sd":89.28},{"name":"France","mean":473.94,"sd":91.06},{"name":"Georgia","mean":390.02,"sd":84.54},{"name":"Germany","mean":474.83,"sd":94.71},{"name":"Greece","mean":430.15,"sd":83.37},{"name":"Guatemala","mean":344.2,"sd":68.73},{"name":"Hong Kong (China)","mean":540.35,"sd":104.52},{"name":"Hungary","mean":472.78,"sd":93.9},{"name":"Iceland","mean":458.9,"sd":87.78},{"name":"Indonesia","mean":365.53,"sd":62.27},{"name":"Ireland","mean":491.65,"sd":79.62},{"name":"Israel","mean":457.9,"sd":107.07},{"name":"Italy","mean":471.26,"sd":88.9},{"name":"Jamaica","mean":377.42,"sd":71.25},{"name":"Japan","mean":535.58,"sd":92.75},{"name":"Jordan","mean":361.23,"sd":61.72},{"name":"Kazakhstan","mean":425.44,"sd":78.43},{"name":"Korea","mean":527.3,"sd":105.2},{"name":"Kosovo","mean":354.96,"sd":62.43},{"name":"Latvia","mean":483.16,"sd":80.15},{"name":"Lithuania","mean":475.15,"sd":87.21},{"name":"Macao (China)","mean":551.92,"sd":92.49},{"name":"Malaysia","mean":408.69,"sd":75.73},{"name":"Malta","mean":466.02,"sd":98.52},{"name":"Mexico","mean":395.03,"sd":69.39},{"name":"Moldova","mean":414.2,"sd":79.54},{"name":"Mongolia","mean":424.59,"sd":83.34},{"name":"Montenegro","mean":405.6,"sd":81.64},{"name":"Morocco","mean":364.77,"sd":62.7},{"name":"Netherlands","mean":492.68,"sd":106.09},{"name":"New Zealand","mean":479.07,"sd":98.52},{"name":"North Macedonia","mean":388.58,"sd":82.71},{"name":"Norway","mean":468.45,"sd":93.47},{"name":"OECD average","mean":472.36,"sd":90.13},{"name":"Palestinian Authority","mean":365.75,"sd":65.94},{"name":"Panama","mean":356.57,"sd":65.37},{"name":"Paraguay","mean":337.54,"sd":77.45},{"name":"Peru","mean":391.24,"sd":77.91},{"name":"Philippines","mean":354.72,"sd":64.67},{"name":"Poland","mean":488.96,"sd":89.46},{"name":"Portugal","mean":471.91,"sd":89.63},{"name":"Qatar","mean":414.11,"sd":88.76},{"name":"Romania","mean":427.76,"sd":98.53},{"name":"Saudi Arabia","mean":388.78,"sd":65.58},{"name":"Serbia","mean":439.88,"sd":89.57},{"name":"Singapore","mean":574.66,"sd":102.8},{"name":"Slovak Republic","mean":463.99,"sd":101.09},{"name":"Slovenia","mean":484.53,"sd":89.23},{"name":"Spain","mean":473.14,"sd":86.37},{"name":"Sweden","mean":481.77,"sd":95.6},{"name":"Switzerland","mean":507.99,"sd":96.03},{"name":"Thailand","mean":393.95,"sd":75.68},{"name":"Türkiye","mean":453.15,"sd":89.81},{"name":"Ukrainian regions (18 of 27)","mean":440.85,"sd":87.86},{"name":"United Arab Emirates","mean":431.11,"sd":101.35},{"name":"United Kingdom","mean":488.98,"sd":96.42},{"name":"United States","mean":464.89,"sd":94.51},{"name":"Uruguay","mean":408.71,"sd":83.23},{"name":"Uzbekistan","mean":363.94,"sd":66.96},{"name":"Viet Nam","mean":469.4,"sd":85.79}];
+let DATA; // loaded from JSON
 
 const COLORS = ['#E3120B', '#1F3044', '#3A6E9E', '#388E8E'];
 const DASHES = ['solid', 'dash', 'dot', 'dashdot'];
-const LEVEL1 = 357.77;
-const LEVEL5 = 606.99;
 
-function populateSelectors() {
+const SUBJ_LABELS = { math: 'Matemática', reading: 'Leitura', science: 'Ciências' };
+
+// Level colors: red–orange–yellow–green gradient for low→high
+const LEVEL_COLORS_9 = ['#8B0000','#CC3333','#E3120B','#D45D5D','#D4D4D4','#7FBFBF','#3A6E9E','#1F3044','#0D1520'];
+const LEVEL_COLORS_8 = ['#8B0000','#CC3333','#E3120B','#D4D4D4','#7FBFBF','#3A6E9E','#1F3044','#0D1520'];
+
+fetch('pisa_data.json')
+  .then(r => r.json())
+  .then(d => { DATA = d; init(); })
+  .catch(err => console.error('Error loading PISA data:', err));
+
+function init() {
+  const names = Object.keys(DATA.countries).sort();
   for (let i = 1; i <= 4; i++) {
     const sel = document.getElementById('sel' + i);
-    COUNTRIES.forEach((c, idx) => {
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = c.name;
-      sel.appendChild(opt);
+    names.forEach(name => {
+      const o = document.createElement('option');
+      o.value = name; o.textContent = name;
+      sel.appendChild(o);
     });
   }
-  document.getElementById('sel1').value = COUNTRIES.findIndex(c => c.name === 'Brazil');
-  document.getElementById('sel2').value = COUNTRIES.findIndex(c => c.name === 'Denmark');
+  document.getElementById('sel1').value = 'Brazil';
+  document.getElementById('sel2').value = 'Denmark';
+  updateAll();
+}
+
+function getSubject() { return document.getElementById('sel-subject').value; }
+
+function getSelected() {
+  const subj = getSubject();
+  const selected = [];
+  for (let i = 1; i <= 4; i++) {
+    const v = document.getElementById('sel' + i).value;
+    if (v && DATA.countries[v]) {
+      const d = DATA.countries[v][subj];
+      selected.push({ name: v, ...d, color: COLORS[i-1], dash: DASHES[i-1] });
+    }
+  }
+  return selected;
 }
 
 function normalPDF(x, mean, sd) {
-  const exp = -0.5 * Math.pow((x - mean) / sd, 2);
-  return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(exp);
+  return (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * ((x - mean) / sd) ** 2);
 }
 
 function normalCDF(x, mean, sd) {
   const z = (x - mean) / sd;
   const t = 1 / (1 + 0.2316419 * Math.abs(z));
-  const d = 0.3989422804014327;
-  const p = d * Math.exp(-z * z / 2) * (t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.8212560 + t * 1.3302744)))));
+  const p = 0.3989422804 * Math.exp(-z * z / 2) * (t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744)))));
   return z > 0 ? 1 - p : p;
 }
 
-function updateChart() {
-  const selected = [];
-  for (let i = 1; i <= 4; i++) {
-    const v = document.getElementById('sel' + i).value;
-    if (v !== '') selected.push({ ...COUNTRIES[parseInt(v)], color: COLORS[i-1], dash: DASHES[i-1] });
-  }
+function fmt(n) { return n.toLocaleString('pt-BR', {maximumFractionDigits:1}); }
 
-  if (selected.length === 0) {
-    Plotly.purge('chart');
-    document.getElementById('statsContainer').style.display = 'none';
-    return;
-  }
+function updateAll() {
+  const selected = getSelected();
+  const subj = getSubject();
+  const bounds = DATA.level_boundaries[subj];
+  const labels = DATA.level_labels[subj];
 
-  const xMin = Math.min(...selected.map(c => c.mean - 3.5 * c.sd), LEVEL1 - 50);
-  const xMax = Math.max(...selected.map(c => c.mean + 3.5 * c.sd), LEVEL5 + 50);
-  const nPoints = 500;
-  const step = (xMax - xMin) / nPoints;
+  document.getElementById('chart-title').textContent = `Distribuições de Proficiência — ${SUBJ_LABELS[subj]}`;
+  document.getElementById('levels-title').textContent = `Percentual de Alunos por Nível de Proficiência — ${SUBJ_LABELS[subj]}`;
 
-  const traces = [];
+  updateCurves(selected, bounds, labels);
+  updateLevels(selected, labels, subj);
+  updatePercentiles(selected);
+  updateRange(selected);
+  updateStats(selected, bounds, labels);
+}
 
-  selected.forEach(c => {
+function updateCurves(selected, bounds, labels) {
+  if (!selected.length) { Plotly.purge('chart-curves'); return; }
+
+  const xMin = Math.min(...selected.map(c => c.mean - 3.5 * c.sd), bounds[1] - 50);
+  const xMax = Math.max(...selected.map(c => c.mean + 3.5 * c.sd), bounds[bounds.length-1] + 50);
+  const step = (xMax - xMin) / 500;
+
+  const traces = selected.map(c => {
     const xs = [], ys = [];
-    for (let x = xMin; x <= xMax; x += step) {
-      xs.push(x);
-      ys.push(normalPDF(x, c.mean, c.sd));
-    }
-    traces.push({
-      x: xs, y: ys,
-      type: 'scatter', mode: 'lines',
-      name: `${c.name} (média = ${c.mean.toFixed(0)}, d.p. = ${c.sd.toFixed(0)})`,
+    for (let x = xMin; x <= xMax; x += step) { xs.push(x); ys.push(normalPDF(x, c.mean, c.sd)); }
+    return {
+      x: xs, y: ys, type: 'scatter', mode: 'lines',
+      name: `${c.name} (μ=${c.mean.toFixed(0)}, σ=${c.sd.toFixed(0)})`,
       line: { color: c.color, width: 2.5, dash: c.dash },
       hovertemplate: `${c.name}<br>Score: %{x:.0f}<br>Densidade: %{y:.5f}<extra></extra>`
-    });
+    };
   });
 
   const yMax = Math.max(...traces.flatMap(t => t.y)) * 1.15;
 
-  const shapes = [
+  // Level boundary lines (skip first boundary = 0)
+  const shapes = bounds.slice(1).map(b => ({
+    type: 'line', x0: b, x1: b, y0: 0, y1: yMax,
+    line: { color: '#76797B', width: 1, dash: 'dash' }
+  }));
+
+  const annotations = bounds.slice(1).map((b, i) => ({
+    x: b, y: yMax, text: `<b>${labels[i+1]}</b>`,
+    showarrow: false, yanchor: 'bottom',
+    font: { size: 10, color: '#76797B', family: 'Georgia, serif' }
+  }));
+
+  Plotly.newPlot('chart-curves', traces, {
+    height: 480,
+    margin: { t: 30, b: 70, l: 60, r: 30 },
+    font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
+    xaxis: { title: 'Score PISA', dtick: 50, range: [xMin, xMax], gridcolor: '#E8E8E8', linecolor: '#D4D4D4' },
+    yaxis: { title: 'Densidade', gridcolor: '#E8E8E8', rangemode: 'tozero', linecolor: '#D4D4D4' },
+    legend: { orientation: 'h', y: -0.18, x: 0.5, xanchor: 'center', font: { size: 11 } },
+    shapes, annotations,
+    plot_bgcolor: 'white', paper_bgcolor: 'white', hovermode: 'x unified'
+  }, { responsive: true, displayModeBar: true, modeBarButtonsToRemove: ['lasso2d','select2d'] });
+}
+
+function updateLevels(selected, labels, subj) {
+  if (!selected.length) { Plotly.purge('chart-levels'); return; }
+
+  const nLevels = labels.length;
+  const levelColors = nLevels === 9 ? LEVEL_COLORS_9 : LEVEL_COLORS_8;
+  const countryNames = selected.map(c => c.name);
+
+  const traces = labels.map((label, li) => ({
+    x: selected.map(c => c.levels[li]),
+    y: countryNames,
+    name: label,
+    type: 'bar',
+    orientation: 'h',
+    marker: { color: levelColors[li] },
+    text: selected.map(c => c.levels[li] >= 3 ? c.levels[li].toFixed(1) + '%' : ''),
+    textposition: 'inside',
+    textfont: { color: 'white', size: 11 },
+    hovertemplate: '%{y}<br>' + label + ': %{x:.1f}%<extra></extra>'
+  }));
+
+  Plotly.newPlot('chart-levels', traces, {
+    height: Math.max(200, selected.length * 60 + 100),
+    margin: { t: 10, b: 50, l: 150, r: 30 },
+    font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
+    barmode: 'stack',
+    xaxis: { title: '% de alunos', range: [0, 100], gridcolor: '#E8E8E8' },
+    yaxis: { automargin: true },
+    legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center', font: { size: 10 }, traceorder: 'normal' },
+    plot_bgcolor: 'white', paper_bgcolor: 'white'
+  }, { responsive: true });
+}
+
+function updatePercentiles(selected) {
+  if (!selected.length) { Plotly.purge('chart-percentiles'); return; }
+
+  const pLabels = ['P10', 'P25', 'P50', 'P75', 'P90'];
+  const pKeys = ['p10', 'p25', 'p50', 'p75', 'p90'];
+
+  const traces = selected.map(c => ({
+    x: pLabels,
+    y: pKeys.map(k => c[k]),
+    type: 'bar',
+    name: c.name,
+    marker: { color: c.color },
+    text: pKeys.map(k => c[k].toFixed(0)),
+    textposition: 'outside',
+    textfont: { size: 10 },
+    hovertemplate: `${c.name}<br>%{x}: %{y:.1f}<extra></extra>`
+  }));
+
+  Plotly.newPlot('chart-percentiles', traces, {
+    height: 360,
+    margin: { t: 20, b: 50, l: 50, r: 20 },
+    font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
+    barmode: 'group',
+    yaxis: { title: 'Score PISA', gridcolor: '#E8E8E8' },
+    legend: { orientation: 'h', y: -0.22, x: 0.5, xanchor: 'center', font: { size: 11 } },
+    plot_bgcolor: 'white', paper_bgcolor: 'white'
+  }, { responsive: true });
+}
+
+function updateRange(selected) {
+  if (!selected.length) { Plotly.purge('chart-range'); return; }
+
+  // P10-P90 range bar (horizontal)
+  const sorted = [...selected].sort((a, b) => (b.p90 - b.p10) - (a.p90 - a.p10));
+
+  const traces = [
     {
-      type: 'line', x0: LEVEL1, x1: LEVEL1, y0: 0, y1: yMax,
-      line: { color: '#76797B', width: 1.5, dash: 'dash' }
+      x: sorted.map(c => c.p10),
+      y: sorted.map(c => c.name),
+      type: 'bar',
+      orientation: 'h',
+      name: 'P10',
+      marker: { color: 'rgba(0,0,0,0)' },
+      showlegend: false,
+      hoverinfo: 'skip',
     },
     {
-      type: 'line', x0: LEVEL5, x1: LEVEL5, y0: 0, y1: yMax,
-      line: { color: '#76797B', width: 1.5, dash: 'dash' }
+      x: sorted.map(c => c.p90 - c.p10),
+      y: sorted.map(c => c.name),
+      type: 'bar',
+      orientation: 'h',
+      name: 'Intervalo P10–P90',
+      marker: { color: sorted.map(c => {
+        const idx = selected.indexOf(c);
+        return idx >= 0 ? COLORS[idx] : '#76797B';
+      }) },
+      text: sorted.map(c => `${(c.p90 - c.p10).toFixed(0)} pts`),
+      textposition: 'inside',
+      textfont: { color: 'white', size: 12 },
+      hovertemplate: '%{y}<br>P10: ' + sorted.map(c => c.p10.toFixed(0)).join('') + '<extra></extra>',
+      customdata: sorted.map(c => [c.p10, c.p90]),
+      hovertemplate: '%{y}<br>P10=%{customdata[0]:.0f}, P90=%{customdata[1]:.0f}<br>Intervalo: %{x:.0f} pts<extra></extra>',
     }
   ];
 
-  const annotations = [
-    {
-      x: LEVEL1, y: yMax, text: '<b>Nível 1 = 357,77</b>',
-      showarrow: false, yanchor: 'bottom', font: { size: 11, color: '#76797B', family: 'Georgia, serif' }
-    },
-    {
-      x: LEVEL5, y: yMax, text: '<b>Nível 5 = 606,99</b>',
-      showarrow: false, yanchor: 'bottom', font: { size: 11, color: '#76797B', family: 'Georgia, serif' }
-    }
-  ];
+  Plotly.newPlot('chart-range', traces, {
+    height: Math.max(200, sorted.length * 50 + 80),
+    margin: { t: 10, b: 50, l: 150, r: 30 },
+    font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
+    barmode: 'stack',
+    xaxis: { title: 'Score PISA', gridcolor: '#E8E8E8' },
+    yaxis: { automargin: true },
+    showlegend: false,
+    plot_bgcolor: 'white', paper_bgcolor: 'white'
+  }, { responsive: true });
+}
 
-  const layout = {
-    height: 520,
-    margin: { t: 40, b: 70, l: 65, r: 30 },
-    font: { family: "'Franklin Gothic Medium', 'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
-    xaxis: {
-      title: { text: 'Scores PISA (distribuição normal simulada)', font: { size: 13 } },
-      dtick: 50, range: [xMin, xMax], gridcolor: '#E8E8E8', linecolor: '#D4D4D4'
-    },
-    yaxis: {
-      title: { text: 'pdf (x)', font: { size: 13 } },
-      gridcolor: '#E8E8E8', rangemode: 'tozero', linecolor: '#D4D4D4'
-    },
-    legend: { orientation: 'h', y: -0.18, x: 0.5, xanchor: 'center', font: { size: 12 } },
-    shapes: shapes,
-    annotations: annotations,
-    plot_bgcolor: 'white',
-    paper_bgcolor: 'white',
-    hovermode: 'x unified'
-  };
+function updateStats(selected, bounds, labels) {
+  if (!selected.length) {
+    document.getElementById('statsContainer').style.display = 'none';
+    return;
+  }
 
-  Plotly.newPlot('chart', traces, layout, { responsive: true, displayModeBar: true, modeBarButtonsToRemove: ['lasso2d','select2d'] });
+  // "Below level 2" threshold: for math/reading it's index 4 (levels 0-3 are below 2), for science index 3
+  const nLevels = labels.length;
+  const belowL2idx = labels.indexOf('2'); // index of level 2
+  const aboveL5idx = labels.indexOf('5'); // index of level 5
 
-  // Stats table
+  document.getElementById('th-below').innerHTML = '% abaixo<br>Nível 2';
+  document.getElementById('th-above').innerHTML = '% Nível 5+';
+
   const tbody = document.getElementById('statsBody');
   tbody.innerHTML = '';
   selected.forEach(c => {
-    const belowL1 = normalCDF(LEVEL1, c.mean, c.sd) * 100;
-    const aboveL5 = (1 - normalCDF(LEVEL5, c.mean, c.sd)) * 100;
+    const belowL2 = c.levels.slice(0, belowL2idx).reduce((s,v) => s+v, 0);
+    const aboveL5 = aboveL5idx >= 0 ? c.levels.slice(aboveL5idx).reduce((s,v) => s+v, 0) : 0;
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="country-name" style="color:${c.color}">${c.name}</td>
-      <td>${c.mean.toFixed(1)}</td>
-      <td>${c.sd.toFixed(1)}</td>
-      <td>${belowL1.toFixed(1)}%</td>
-      <td>${aboveL5.toFixed(1)}%</td>`;
+      <td class="num">${fmt(c.mean)}</td>
+      <td class="num">${fmt(c.sd)}</td>
+      <td class="num">${fmt(c.p10)}</td>
+      <td class="num">${fmt(c.p25)}</td>
+      <td class="num">${fmt(c.p50)}</td>
+      <td class="num">${fmt(c.p75)}</td>
+      <td class="num">${fmt(c.p90)}</td>
+      <td class="num">${fmt(belowL2)}%</td>
+      <td class="num">${fmt(aboveL5)}%</td>`;
     tbody.appendChild(tr);
   });
   document.getElementById('statsContainer').style.display = 'block';
 }
-
-populateSelectors();
-updateChart();
 </script>
 </body>
 </html>
