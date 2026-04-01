@@ -426,25 +426,62 @@ function applyFilters() {
 
   const regI = fReg ? DB.regioes.indexOf(fReg) : -1;
   const ufI = fUf ? DB.ufs.indexOf(fUf) : -1;
+  const munI = fMun ? DB.municipios.indexOf(fMun) : -1;
   const depI = fDep ? DB.deps.indexOf(fDep) : -1;
   const areaI = fArea ? DB.areas.indexOf(fArea) : -1;
+  const cursoI = fCurso ? DB.cursos.indexOf(fCurso) : -1;
 
   const pubSet = fPP === 'pub' ? new Set() : null;
   const privSet = fPP === 'priv' ? new Set() : null;
   if (pubSet) DB.deps.forEach((d,i) => { if (PUB_DEPS.has(d)) pubSet.add(i); });
   if (privSet) DB.deps.forEach((d,i) => { if (!PUB_DEPS.has(d)) privSet.add(i); });
 
-  // Filter light records (no mun/curso — those filter only the entity table)
-  filtered = DB.records.filter(r => {
-    if (regI >= 0 && r[I_REG] !== regI) return false;
-    if (ufI >= 0 && r[I_UF] !== ufI) return false;
-    if (depI >= 0 && r[I_DEP] !== depI) return false;
-    if (pubSet && !pubSet.has(r[I_DEP])) return false;
-    if (privSet && !privSet.has(r[I_DEP])) return false;
-    if (areaI >= 0 && r[I_AREA] !== areaI) return false;
-    if (fMod && r[activeMatIdx] === 0) return false;
-    return true;
-  });
+  const needsDetail = (munI >= 0 || cursoI >= 0);
+
+  if (needsDetail && DB_ENT) {
+    // Use entity-level data when mun/curso filters are active
+    const eMatIdx = fMod ? ({int:EI_MAT_INT,nm:EI_MAT_NM,conc:EI_MAT_CONC,subs:EI_MAT_SUBS,eja:EI_MAT_EJA}[fMod]||EI_MAT) : EI_MAT;
+    // Aggregate entity records into light-format for KPIs/charts
+    const agg = {};
+    for (const r of DB_ENT.records) {
+      if (regI >= 0 && r[EI_REG] !== regI) continue;
+      if (ufI >= 0 && r[EI_UF] !== ufI) continue;
+      if (munI >= 0 && r[EI_MUN] !== munI) continue;
+      if (depI >= 0 && r[EI_DEP] !== depI) continue;
+      if (pubSet && !pubSet.has(r[EI_DEP])) continue;
+      if (privSet && !privSet.has(r[EI_DEP])) continue;
+      if (areaI >= 0 && r[EI_AREA] !== areaI) continue;
+      if (cursoI >= 0 && r[EI_CURSO] !== cursoI) continue;
+      if (fMod && r[eMatIdx] === 0) continue;
+
+      const key = r[EI_ANO]+','+r[EI_REG]+','+r[EI_UF]+','+r[EI_DEP]+','+r[EI_AREA];
+      if (!agg[key]) {
+        agg[key] = [r[EI_ANO], r[EI_REG], r[EI_UF], r[EI_DEP], r[EI_AREA], 0,0,0,0,0,0, 0, 0];
+      }
+      const a = agg[key];
+      a[5] += r[EI_MAT];
+      a[6] += r[EI_MAT_INT];
+      a[7] += r[EI_MAT_NM];
+      a[8] += r[EI_MAT_CONC];
+      a[9] += r[EI_MAT_SUBS];
+      a[10] += r[EI_MAT_EJA];
+      a[11] += 1; // n_ent approximation
+      a[12] += 1; // n_cursos approximation
+    }
+    filtered = Object.values(agg);
+  } else {
+    // Use light records (fast path)
+    filtered = DB.records.filter(r => {
+      if (regI >= 0 && r[I_REG] !== regI) return false;
+      if (ufI >= 0 && r[I_UF] !== ufI) return false;
+      if (depI >= 0 && r[I_DEP] !== depI) return false;
+      if (pubSet && !pubSet.has(r[I_DEP])) return false;
+      if (privSet && !privSet.has(r[I_DEP])) return false;
+      if (areaI >= 0 && r[I_AREA] !== areaI) return false;
+      if (fMod && r[activeMatIdx] === 0) return false;
+      return true;
+    });
+  }
 
   updateKPIs();
   updateCharts();
