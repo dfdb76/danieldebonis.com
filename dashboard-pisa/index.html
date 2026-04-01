@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard PISA – Daniel De Bonis</title>
+<title>PISA Dashboard – Daniel De Bonis</title>
 <link rel="stylesheet" href="../css/economist.css">
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
@@ -76,7 +76,6 @@
     margin-bottom: 8px;
     color: var(--e-black);
   }
-  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .stats-table {
     background: var(--e-white);
     border: 1px solid var(--e-grey-light);
@@ -108,9 +107,6 @@
     border-top: 1px solid var(--e-grey-light);
     padding-top: 14px;
   }
-  @media (max-width: 900px) {
-    .charts-row { grid-template-columns: 1fr; }
-  }
   @media (max-width: 700px) {
     .selectors { flex-direction: column; }
   }
@@ -123,7 +119,7 @@
 <nav class="site-nav">
   <ul class="nav-links">
     <li><a href="../index.html">Home</a></li>
-    <li><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li><a href="#" style="opacity:0.45; pointer-events:none;">Articles</a></li>
     <li><a href="../dashboard-ept/index.html">Dashboard EPT</a></li>
     <li><a href="../dashboard-pisa/index.html" class="active">Dashboard PISA</a></li>
   </ul>
@@ -131,80 +127,68 @@
 
 <div class="container">
   <div class="dashboard-header">
-    <h1>PISA 2022 — Distribuições de Proficiência</h1>
-    <p>Selecione a disciplina e até 4 países para comparar curvas de distribuição e níveis de proficiência</p>
+    <h1>PISA 2022 — Proficiency Distributions</h1>
+    <p>Compare score distributions and proficiency levels across countries (inspired by Lant Pritchett)</p>
   </div>
 
   <div class="controls">
-    <h2>Filtros</h2>
+    <h2>Filters</h2>
     <div class="selectors">
       <div class="selector-group" style="max-width:180px;">
-        <label>Disciplina</label>
+        <label>Subject</label>
         <select id="sel-subject" onchange="updateAll()">
-          <option value="math">Matemática</option>
-          <option value="reading">Leitura</option>
-          <option value="science">Ciências</option>
+          <option value="math">Mathematics</option>
+          <option value="reading">Reading</option>
+          <option value="science">Science</option>
         </select>
       </div>
       <div class="selector-group">
-        <label><span class="color-dot" style="background:#E3120B"></span>País 1</label>
-        <select id="sel1" onchange="updateAll()"><option value="">— Selecione —</option></select>
+        <label><span class="color-dot" style="background:#E3120B"></span>Country 1</label>
+        <select id="sel1" onchange="updateAll()"><option value="">— Select —</option></select>
       </div>
       <div class="selector-group">
-        <label><span class="color-dot" style="background:#1F3044"></span>País 2</label>
-        <select id="sel2" onchange="updateAll()"><option value="">— Selecione —</option></select>
+        <label><span class="color-dot" style="background:#1F3044"></span>Country 2</label>
+        <select id="sel2" onchange="updateAll()"><option value="">— Select —</option></select>
       </div>
       <div class="selector-group">
-        <label><span class="color-dot" style="background:#3A6E9E"></span>País 3</label>
-        <select id="sel3" onchange="updateAll()"><option value="">— Selecione —</option></select>
+        <label><span class="color-dot" style="background:#3A6E9E"></span>Country 3</label>
+        <select id="sel3" onchange="updateAll()"><option value="">— Select —</option></select>
       </div>
       <div class="selector-group">
-        <label><span class="color-dot" style="background:#388E8E"></span>País 4</label>
-        <select id="sel4" onchange="updateAll()"><option value="">— Selecione —</option></select>
+        <label><span class="color-dot" style="background:#388E8E"></span>Country 4</label>
+        <select id="sel4" onchange="updateAll()"><option value="">— Select —</option></select>
       </div>
     </div>
   </div>
 
   <!-- Distribution curves chart -->
   <div class="chart-card">
-    <h3 id="chart-title">Distribuições de Proficiência</h3>
+    <h3 id="chart-title">Proficiency Distributions</h3>
     <div id="chart-curves"></div>
   </div>
 
   <!-- Proficiency levels stacked bar chart -->
   <div class="chart-card">
-    <h3 id="levels-title">Percentual de Alunos por Nível de Proficiência</h3>
+    <h3 id="levels-title">Students by Proficiency Level</h3>
     <div id="chart-levels"></div>
-  </div>
-
-  <!-- Percentile comparison chart -->
-  <div class="charts-row">
-    <div class="chart-card">
-      <h3>Percentis (P10, P25, P50, P75, P90)</h3>
-      <div id="chart-percentiles"></div>
-    </div>
-    <div class="chart-card">
-      <h3>Intervalo P10–P90 (Dispersão)</h3>
-      <div id="chart-range"></div>
-    </div>
   </div>
 
   <!-- Stats table -->
   <div class="stats-table" id="statsContainer" style="display:none">
-    <h2>Estatísticas comparativas</h2>
+    <h2>Comparative Statistics</h2>
     <table>
       <thead>
         <tr>
-          <th>País</th>
-          <th>Média</th>
-          <th>D.P.</th>
+          <th>Country</th>
+          <th>Mean</th>
+          <th>S.D.</th>
           <th>P10</th>
           <th>P25</th>
           <th>P50</th>
           <th>P75</th>
           <th>P90</th>
-          <th id="th-below">% abaixo Nível 2</th>
-          <th id="th-above">% Nível 5+</th>
+          <th id="th-below">% below<br>Level 2</th>
+          <th id="th-above">% Level 5+</th>
         </tr>
       </thead>
       <tbody id="statsBody"></tbody>
@@ -212,7 +196,7 @@
   </div>
 
   <div class="source-footer">
-    Fonte: OECD PISA 2022 — Volume I, Tables I.B1.2.1–3 e I.B1.3.1–3. Curvas de distribuição normal simuladas com média e desvio-padrão reportados. Proporções por nível com dados observados.
+    Source: OECD PISA 2022 — Volume I, Tables I.B1.2.1–3 and I.B1.3.1–3. Normal distribution curves simulated from reported mean and standard deviation. Proficiency level proportions from observed data.
   </div>
 </div>
 
@@ -221,14 +205,13 @@
 </footer>
 
 <script>
-let DATA; // loaded from JSON
+let DATA;
 
 const COLORS = ['#E3120B', '#1F3044', '#3A6E9E', '#388E8E'];
 const DASHES = ['solid', 'dash', 'dot', 'dashdot'];
 
-const SUBJ_LABELS = { math: 'Matemática', reading: 'Leitura', science: 'Ciências' };
+const SUBJ_LABELS = { math: 'Mathematics', reading: 'Reading', science: 'Science' };
 
-// Level colors: red–orange–yellow–green gradient for low→high
 const LEVEL_COLORS_9 = ['#8B0000','#CC3333','#E3120B','#D45D5D','#D4D4D4','#7FBFBF','#3A6E9E','#1F3044','#0D1520'];
 const LEVEL_COLORS_8 = ['#8B0000','#CC3333','#E3120B','#D4D4D4','#7FBFBF','#3A6E9E','#1F3044','#0D1520'];
 
@@ -278,7 +261,7 @@ function normalCDF(x, mean, sd) {
   return z > 0 ? 1 - p : p;
 }
 
-function fmt(n) { return n.toLocaleString('pt-BR', {maximumFractionDigits:1}); }
+function fmtEn(n, d) { return n.toFixed(d !== undefined ? d : 1); }
 
 function updateAll() {
   const selected = getSelected();
@@ -286,13 +269,11 @@ function updateAll() {
   const bounds = DATA.level_boundaries[subj];
   const labels = DATA.level_labels[subj];
 
-  document.getElementById('chart-title').textContent = `Distribuições de Proficiência — ${SUBJ_LABELS[subj]}`;
-  document.getElementById('levels-title').textContent = `Percentual de Alunos por Nível de Proficiência — ${SUBJ_LABELS[subj]}`;
+  document.getElementById('chart-title').textContent = `Proficiency Distributions — ${SUBJ_LABELS[subj]}`;
+  document.getElementById('levels-title').textContent = `Students by Proficiency Level — ${SUBJ_LABELS[subj]}`;
 
   updateCurves(selected, bounds, labels);
   updateLevels(selected, labels, subj);
-  updatePercentiles(selected);
-  updateRange(selected);
   updateStats(selected, bounds, labels);
 }
 
@@ -304,19 +285,23 @@ function updateCurves(selected, bounds, labels) {
   const step = (xMax - xMin) / 500;
 
   const traces = selected.map(c => {
-    const xs = [], ys = [];
-    for (let x = xMin; x <= xMax; x += step) { xs.push(x); ys.push(normalPDF(x, c.mean, c.sd)); }
+    const xs = [], ys = [], pctiles = [];
+    for (let x = xMin; x <= xMax; x += step) {
+      xs.push(x);
+      ys.push(normalPDF(x, c.mean, c.sd));
+      pctiles.push((normalCDF(x, c.mean, c.sd) * 100).toFixed(1));
+    }
     return {
       x: xs, y: ys, type: 'scatter', mode: 'lines',
-      name: `${c.name} (μ=${c.mean.toFixed(0)}, σ=${c.sd.toFixed(0)})`,
+      name: `${c.name} (\u03BC=${c.mean.toFixed(0)}, \u03C3=${c.sd.toFixed(0)})`,
       line: { color: c.color, width: 2.5, dash: c.dash },
-      hovertemplate: `${c.name}<br>Score: %{x:.0f}<br>Densidade: %{y:.5f}<extra></extra>`
+      customdata: pctiles,
+      hovertemplate: `${c.name}<br>Score: %{x:.0f}<br>Density: %{y:.5f}<br>Percentile: %{customdata}<extra></extra>`
     };
   });
 
   const yMax = Math.max(...traces.flatMap(t => t.y)) * 1.15;
 
-  // Level boundary lines (skip first boundary = 0)
   const shapes = bounds.slice(1).map(b => ({
     type: 'line', x0: b, x1: b, y0: 0, y1: yMax,
     line: { color: '#76797B', width: 1, dash: 'dash' }
@@ -332,8 +317,8 @@ function updateCurves(selected, bounds, labels) {
     height: 480,
     margin: { t: 30, b: 70, l: 60, r: 30 },
     font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
-    xaxis: { title: 'Score PISA', dtick: 50, range: [xMin, xMax], gridcolor: '#E8E8E8', linecolor: '#D4D4D4' },
-    yaxis: { title: 'Densidade', gridcolor: '#E8E8E8', rangemode: 'tozero', linecolor: '#D4D4D4' },
+    xaxis: { title: 'PISA Score (simulated normal distribution)', dtick: 50, range: [xMin, xMax], gridcolor: '#E8E8E8', linecolor: '#D4D4D4' },
+    yaxis: { title: 'Density', gridcolor: '#E8E8E8', rangemode: 'tozero', linecolor: '#D4D4D4' },
     legend: { orientation: 'h', y: -0.18, x: 0.5, xanchor: 'center', font: { size: 11 } },
     shapes, annotations,
     plot_bgcolor: 'white', paper_bgcolor: 'white', hovermode: 'x unified'
@@ -361,90 +346,13 @@ function updateLevels(selected, labels, subj) {
   }));
 
   Plotly.newPlot('chart-levels', traces, {
-    height: Math.max(200, selected.length * 60 + 100),
-    margin: { t: 10, b: 50, l: 150, r: 30 },
+    height: Math.max(220, selected.length * 70 + 120),
+    margin: { t: 10, b: 60, l: 200, r: 30 },
     font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
     barmode: 'stack',
-    xaxis: { title: '% de alunos', range: [0, 100], gridcolor: '#E8E8E8' },
-    yaxis: { automargin: true },
+    xaxis: { title: '% of students', range: [0, 100], gridcolor: '#E8E8E8' },
+    yaxis: { automargin: true, ticksuffix: '   ' },
     legend: { orientation: 'h', y: -0.3, x: 0.5, xanchor: 'center', font: { size: 10 }, traceorder: 'normal' },
-    plot_bgcolor: 'white', paper_bgcolor: 'white'
-  }, { responsive: true });
-}
-
-function updatePercentiles(selected) {
-  if (!selected.length) { Plotly.purge('chart-percentiles'); return; }
-
-  const pLabels = ['P10', 'P25', 'P50', 'P75', 'P90'];
-  const pKeys = ['p10', 'p25', 'p50', 'p75', 'p90'];
-
-  const traces = selected.map(c => ({
-    x: pLabels,
-    y: pKeys.map(k => c[k]),
-    type: 'bar',
-    name: c.name,
-    marker: { color: c.color },
-    text: pKeys.map(k => c[k].toFixed(0)),
-    textposition: 'outside',
-    textfont: { size: 10 },
-    hovertemplate: `${c.name}<br>%{x}: %{y:.1f}<extra></extra>`
-  }));
-
-  Plotly.newPlot('chart-percentiles', traces, {
-    height: 360,
-    margin: { t: 20, b: 50, l: 50, r: 20 },
-    font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
-    barmode: 'group',
-    yaxis: { title: 'Score PISA', gridcolor: '#E8E8E8' },
-    legend: { orientation: 'h', y: -0.22, x: 0.5, xanchor: 'center', font: { size: 11 } },
-    plot_bgcolor: 'white', paper_bgcolor: 'white'
-  }, { responsive: true });
-}
-
-function updateRange(selected) {
-  if (!selected.length) { Plotly.purge('chart-range'); return; }
-
-  // P10-P90 range bar (horizontal)
-  const sorted = [...selected].sort((a, b) => (b.p90 - b.p10) - (a.p90 - a.p10));
-
-  const traces = [
-    {
-      x: sorted.map(c => c.p10),
-      y: sorted.map(c => c.name),
-      type: 'bar',
-      orientation: 'h',
-      name: 'P10',
-      marker: { color: 'rgba(0,0,0,0)' },
-      showlegend: false,
-      hoverinfo: 'skip',
-    },
-    {
-      x: sorted.map(c => c.p90 - c.p10),
-      y: sorted.map(c => c.name),
-      type: 'bar',
-      orientation: 'h',
-      name: 'Intervalo P10–P90',
-      marker: { color: sorted.map(c => {
-        const idx = selected.indexOf(c);
-        return idx >= 0 ? COLORS[idx] : '#76797B';
-      }) },
-      text: sorted.map(c => `${(c.p90 - c.p10).toFixed(0)} pts`),
-      textposition: 'inside',
-      textfont: { color: 'white', size: 12 },
-      hovertemplate: '%{y}<br>P10: ' + sorted.map(c => c.p10.toFixed(0)).join('') + '<extra></extra>',
-      customdata: sorted.map(c => [c.p10, c.p90]),
-      hovertemplate: '%{y}<br>P10=%{customdata[0]:.0f}, P90=%{customdata[1]:.0f}<br>Intervalo: %{x:.0f} pts<extra></extra>',
-    }
-  ];
-
-  Plotly.newPlot('chart-range', traces, {
-    height: Math.max(200, sorted.length * 50 + 80),
-    margin: { t: 10, b: 50, l: 150, r: 30 },
-    font: { family: "'Helvetica Neue', Arial, sans-serif", color: '#1D1D1B' },
-    barmode: 'stack',
-    xaxis: { title: 'Score PISA', gridcolor: '#E8E8E8' },
-    yaxis: { automargin: true },
-    showlegend: false,
     plot_bgcolor: 'white', paper_bgcolor: 'white'
   }, { responsive: true });
 }
@@ -455,13 +363,8 @@ function updateStats(selected, bounds, labels) {
     return;
   }
 
-  // "Below level 2" threshold: for math/reading it's index 4 (levels 0-3 are below 2), for science index 3
-  const nLevels = labels.length;
-  const belowL2idx = labels.indexOf('2'); // index of level 2
-  const aboveL5idx = labels.indexOf('5'); // index of level 5
-
-  document.getElementById('th-below').innerHTML = '% abaixo<br>Nível 2';
-  document.getElementById('th-above').innerHTML = '% Nível 5+';
+  const belowL2idx = labels.indexOf('2');
+  const aboveL5idx = labels.indexOf('5');
 
   const tbody = document.getElementById('statsBody');
   tbody.innerHTML = '';
@@ -471,15 +374,15 @@ function updateStats(selected, bounds, labels) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="country-name" style="color:${c.color}">${c.name}</td>
-      <td class="num">${fmt(c.mean)}</td>
-      <td class="num">${fmt(c.sd)}</td>
-      <td class="num">${fmt(c.p10)}</td>
-      <td class="num">${fmt(c.p25)}</td>
-      <td class="num">${fmt(c.p50)}</td>
-      <td class="num">${fmt(c.p75)}</td>
-      <td class="num">${fmt(c.p90)}</td>
-      <td class="num">${fmt(belowL2)}%</td>
-      <td class="num">${fmt(aboveL5)}%</td>`;
+      <td class="num">${fmtEn(c.mean)}</td>
+      <td class="num">${fmtEn(c.sd)}</td>
+      <td class="num">${fmtEn(c.p10)}</td>
+      <td class="num">${fmtEn(c.p25)}</td>
+      <td class="num">${fmtEn(c.p50)}</td>
+      <td class="num">${fmtEn(c.p75)}</td>
+      <td class="num">${fmtEn(c.p90)}</td>
+      <td class="num">${fmtEn(belowL2)}%</td>
+      <td class="num">${fmtEn(aboveL5)}%</td>`;
     tbody.appendChild(tr);
   });
   document.getElementById('statsContainer').style.display = 'block';
