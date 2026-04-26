@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1Y553RCK8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1Y553RCK8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PISA — Daniel De Bonis</title>
+<link rel="stylesheet" href="../css/economist.css">
+<style>
+  .page-header {
+    padding: 40px 0 24px;
+    border-bottom: 1px solid var(--e-grey-light);
+    margin-bottom: 32px;
+  }
+  .page-header .kicker {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--e-red);
+    margin-bottom: 8px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+  .page-header .lede {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    color: var(--e-black);
+    line-height: 1.55;
+    max-width: 780px;
+  }
+
+  .section {
+    border-top: 1px solid var(--e-grey-light);
+    padding-top: 28px;
+    margin-bottom: 36px;
+  }
+  .section h2 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+  }
+  .section p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.92rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--e-black);
+    margin-bottom: 14px;
+    max-width: 820px;
+  }
+
+  /* Factbox grid — characteristics */
+  .factbox-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .factbox {
+    border: 1px solid var(--e-grey-light);
+    border-left: 3px solid var(--e-red);
+    padding: 14px 16px;
+    background: #FAFAFA;
+  }
+  .factbox .label {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--e-grey);
+    margin-bottom: 6px;
+  }
+  .factbox .value {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    color: var(--e-black);
+    line-height: 1.35;
+  }
+  .factbox .value strong {
+    font-size: 1.4rem;
+    color: var(--e-red);
+    font-weight: 700;
+  }
+
+  /* Proficiency-levels table */
+  .bmk-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 0.88rem;
+  }
+  .bmk-table th, .bmk-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--e-grey-light);
+    vertical-align: top;
+  }
+  .bmk-table th {
+    background: #F7F7F7;
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+  }
+  .bmk-table td.score {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--e-red);
+    font-family: Georgia, serif;
+    font-size: 1.05rem;
+    width: 110px;
+  }
+  .bmk-table td.name {
+    font-weight: 600;
+    width: 110px;
+  }
+
+  /* Sub-page cards */
+  .subpage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 14px;
+  }
+  .subpage-card {
+    border: 1px solid var(--e-grey-light);
+    padding: 28px;
+    text-decoration: none;
+    color: var(--e-black);
+    transition: border-color 0.15s, transform 0.15s;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .subpage-card:hover {
+    border-color: var(--e-red);
+    transform: translateY(-2px);
+  }
+  .subpage-card .eyebrow {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--e-red);
+  }
+  .subpage-card h3 {
+    font-size: 1.1rem;
+    margin: 0;
+    letter-spacing: -0.2px;
+  }
+  .subpage-card p {
+    font-size: 0.88rem;
+    color: var(--e-grey);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .subpage-card .cta {
+    margin-top: auto;
+    padding-top: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-red);
+  }
+
+  /* Language toggle */
+  .lang-toggle {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+    cursor: pointer;
+    user-select: none;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .lang-toggle span { transition: color 0.15s; }
+  .lang-toggle span.active { color: var(--e-red); }
+  .lang-toggle span:hover { color: var(--e-red); }
+  [data-lang="en"] { display: none; }
+  html.lang-en [data-lang="en"] { display: revert; }
+  html.lang-en [data-lang="pt"] { display: none; }
+
+  @media (max-width: 700px) {
+    .page-header h1 { font-size: 1.55rem; }
+    .factbox-grid { grid-template-columns: 1fr; }
+    .subpage-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="economist-topline"></div>
+
+<nav class="site-nav">
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li data-lang="pt"><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li data-lang="en"><a href="#" style="opacity:0.45; pointer-events:none;">Articles</a></li>
+    <li><a href="../dashboard-ept/index.html">EPT</a></li>
+    <li><a href="index.html" class="active">PISA</a></li>
+    <li><a href="../timss/index.html">TIMSS</a></li>
+    <li class="lang-toggle" onclick="toggleLang()">
+      <span id="lang-pt" class="active">PT</span> | <span id="lang-en">EN</span>
+    </li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="kicker" data-lang="pt">Avaliações educacionais internacionais</div>
+    <div class="kicker" data-lang="en">International educational assessments</div>
+    <h1>PISA</h1>
+    <p class="lede" data-lang="pt">O <strong>PISA</strong> (<em>Programme for International Student Assessment</em>) é a avaliação internacional comparada mais influente do mundo em educação. Aplicado pela <strong>OCDE</strong> a cada três anos desde 2000, mede o desempenho de adolescentes de 15 anos em Leitura, Matemática e Ciências, próximo ao fim da escolaridade obrigatória.</p>
+    <p class="lede" data-lang="en">The <strong>PISA</strong> (<em>Programme for International Student Assessment</em>) is the most influential international comparative assessment in education. Coordinated by the <strong>OECD</strong> every three years since 2000, it measures the performance of 15-year-old students in Reading, Mathematics and Science, near the end of compulsory schooling.</p>
+  </div>
+
+  <!-- Sub-pages -->
+  <section class="section" style="border-top:none;padding-top:0;">
+    <h2 data-lang="pt">Explore o PISA</h2>
+    <h2 data-lang="en">Explore PISA</h2>
+    <p data-lang="pt">Duas páginas interativas permitem explorar resultados do PISA em mais profundidade: uma compara as distribuições de proficiência do ciclo 2022 entre países, e outra mostra a evolução das médias ao longo dos ciclos desde 2000.</p>
+    <p data-lang="en">Two interactive pages let you dive deeper into PISA results: one compares 2022 proficiency distributions across countries, and another shows the evolution of mean scores across cycles since 2000.</p>
+
+    <div class="subpage-grid">
+      <a href="../dashboard-pisa/index.html" class="subpage-card">
+        <div class="eyebrow" data-lang="pt">Subpágina · PISA 2022</div>
+        <div class="eyebrow" data-lang="en">Subpage · PISA 2022</div>
+        <h3 data-lang="pt">Distribuições de proficiência por país</h3>
+        <h3 data-lang="en">Proficiency distributions by country</h3>
+        <p data-lang="pt">Comparação interativa das curvas de distribuição de proficiência de até quatro países no PISA 2022, em Matemática, Leitura e Ciências, com médias, percentis e percentuais por nível de proficiência. Inspirado em trabalhos de Lant Pritchett.</p>
+        <p data-lang="en">Interactive comparison of proficiency distribution curves for up to four countries in PISA 2022, across Mathematics, Reading and Science, with means, percentiles and shares by proficiency level. Inspired by Lant Pritchett's work.</p>
+        <span class="cta" data-lang="pt">Abrir distribuições →</span>
+        <span class="cta" data-lang="en">Open distributions →</span>
+      </a>
+      <a href="../dashboard-pisa-2/index.html" class="subpage-card">
+        <div class="eyebrow" data-lang="pt">Subpágina · Tendências</div>
+        <div class="eyebrow" data-lang="en">Subpage · Trends</div>
+        <h3 data-lang="pt">Evolução das médias 2000–2022</h3>
+        <h3 data-lang="en">Mean-score trends 2000–2022</h3>
+        <p data-lang="pt">Trajetória das médias em Matemática, Leitura e Ciências ao longo dos ciclos do PISA. Compare dois países lado a lado em três painéis simultâneos.</p>
+        <p data-lang="en">Trajectory of mean scores in Mathematics, Reading and Science across PISA cycles. Compare two countries side-by-side in three simultaneous panels.</p>
+        <span class="cta" data-lang="pt">Abrir tendências →</span>
+        <span class="cta" data-lang="en">Open trends →</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- What is PISA -->
+  <section class="section">
+    <h2 data-lang="pt">O que é o PISA</h2>
+    <h2 data-lang="en">What is PISA</h2>
+    <div data-lang="pt">
+      <p>O PISA avalia em que medida estudantes de 15 anos adquiriram conhecimentos e habilidades essenciais para a participação plena nas sociedades contemporâneas. A ênfase está no <em>letramento</em> — a capacidade de aplicar o que se aprendeu na escola para resolver problemas em contextos reais — e não no domínio de conteúdos curriculares específicos.</p>
+      <p>A cada ciclo, uma das três áreas (Leitura, Matemática ou Ciências) é tomada como <strong>foco principal</strong>, recebendo um conjunto mais amplo de itens e análises mais detalhadas. Em 2022, o foco foi <strong>Matemática</strong>; em 2025, será <strong>Ciências</strong>.</p>
+      <p>Os resultados são reportados em uma escala padronizada (média da OCDE de 500 e desvio-padrão de 100, em cada uma das três áreas) e organizados em <strong>seis níveis de proficiência</strong>, descritos por padrões cumulativos do que estudantes em cada faixa tipicamente sabem e conseguem fazer.</p>
+      <p>O Brasil participa do PISA desde a primeira edição, em 2000, e é hoje um dos países com a maior série histórica fora da OCDE.</p>
+    </div>
+    <div data-lang="en">
+      <p>PISA assesses the extent to which 15-year-old students have acquired the knowledge and skills essential for full participation in contemporary societies. The focus is on <em>literacy</em> — the ability to apply school learning to solve problems in real contexts — rather than on mastery of specific curricular content.</p>
+      <p>In each cycle, one of the three domains (Reading, Mathematics or Science) is taken as the <strong>main focus</strong>, with a wider pool of items and more in-depth analyses. In 2022, the focus was <strong>Mathematics</strong>; in 2025, it will be <strong>Science</strong>.</p>
+      <p>Results are reported on a standardized scale (OECD mean of 500 and standard deviation of 100 in each domain) and organized in <strong>six proficiency levels</strong>, described as cumulative standards of what students in each band typically know and can do.</p>
+      <p>Brazil has participated in PISA since the first cycle in 2000, and today holds one of the longest historical series outside the OECD.</p>
+    </div>
+  </section>
+
+  <!-- Key facts -->
+  <section class="section">
+    <h2 data-lang="pt">PISA em números</h2>
+    <h2 data-lang="en">PISA key facts</h2>
+
+    <div class="factbox-grid">
+      <div class="factbox">
+        <div class="label" data-lang="pt">Periodicidade</div>
+        <div class="label" data-lang="en">Frequency</div>
+        <div class="value" data-lang="pt"><strong>Trienal</strong> — desde 2000</div>
+        <div class="value" data-lang="en"><strong>Every 3 years</strong> — since 2000</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Público-alvo</div>
+        <div class="label" data-lang="en">Target population</div>
+        <div class="value" data-lang="pt">Estudantes de <strong>15 anos</strong> matriculados em escolas formais</div>
+        <div class="value" data-lang="en">Students aged <strong>15</strong> enrolled in formal schools</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Áreas avaliadas</div>
+        <div class="label" data-lang="en">Domains assessed</div>
+        <div class="value" data-lang="pt"><strong>Leitura</strong>, <strong>Matemática</strong> e <strong>Ciências</strong></div>
+        <div class="value" data-lang="en"><strong>Reading</strong>, <strong>Mathematics</strong> and <strong>Science</strong></div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Países / economias em 2022</div>
+        <div class="label" data-lang="en">Countries / economies in 2022</div>
+        <div class="value" data-lang="pt">Cerca de <strong>80</strong> países e economias parceiras</div>
+        <div class="value" data-lang="en">Around <strong>80</strong> countries and partner economies</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Estudantes avaliados em 2022</div>
+        <div class="label" data-lang="en">Students assessed in 2022</div>
+        <div class="value" data-lang="pt">Cerca de <strong>690 mil</strong> estudantes, representando ~29 milhões</div>
+        <div class="value" data-lang="en">Around <strong>690,000</strong> students, representing ~29 million</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Modalidade</div>
+        <div class="label" data-lang="en">Mode</div>
+        <div class="value" data-lang="pt"><strong>Digital</strong> (computer-based) na maioria dos países desde 2015</div>
+        <div class="value" data-lang="en"><strong>Computer-based</strong> in most countries since 2015</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Proficiency levels -->
+  <section class="section">
+    <h2 data-lang="pt">Níveis de proficiência</h2>
+    <h2 data-lang="en">Proficiency levels</h2>
+    <p data-lang="pt">A OCDE descreve o que estudantes em cada nível tipicamente sabem e conseguem fazer. Os pontos de corte (em pontos da escala PISA) são ligeiramente diferentes entre as três áreas; a tabela abaixo mostra os limites usados em <strong>Matemática</strong> no PISA 2022.</p>
+    <p data-lang="en">The OECD describes what students at each level typically know and can do. Cut scores (on the PISA scale) differ slightly across the three domains; the table below shows the thresholds used for <strong>Mathematics</strong> in PISA 2022.</p>
+    <table class="bmk-table">
+      <thead>
+        <tr>
+          <th data-lang="pt">Score</th><th data-lang="en">Score</th>
+          <th data-lang="pt">Nível</th><th data-lang="en">Level</th>
+          <th data-lang="pt">Descrição resumida</th><th data-lang="en">Short description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="score">669+</td>
+          <td class="name">6</td>
+          <td data-lang="pt">Conceitualiza, generaliza e aplica conhecimento avançado em situações novas e complexas; comunica argumentos e justificativas com precisão.</td>
+          <td data-lang="en">Conceptualizes, generalizes and applies advanced knowledge to novel, complex situations; communicates arguments and justifications precisely.</td>
+        </tr>
+        <tr>
+          <td class="score">607</td>
+          <td class="name">5</td>
+          <td data-lang="pt">Trabalha estrategicamente com modelos de situações complexas; seleciona, compara e avalia estratégias.</td>
+          <td data-lang="en">Works strategically with models of complex situations; selects, compares and evaluates strategies.</td>
+        </tr>
+        <tr>
+          <td class="score">545</td>
+          <td class="name">4</td>
+          <td data-lang="pt">Aplica de forma eficaz modelos a situações concretas e complexas; comunica raciocínios com argumentos.</td>
+          <td data-lang="en">Effectively applies models to concrete, complex situations; communicates reasoning with arguments.</td>
+        </tr>
+        <tr>
+          <td class="score">482</td>
+          <td class="name">3</td>
+          <td data-lang="pt">Executa procedimentos descritos com clareza, inclusive em sequência; resolve problemas com base em representações de diferentes fontes.</td>
+          <td data-lang="en">Executes clearly described procedures, including sequences; solves problems based on representations from different sources.</td>
+        </tr>
+        <tr>
+          <td class="score">420</td>
+          <td class="name">2</td>
+          <td data-lang="pt"><strong>Limiar de proficiência básica</strong> — interpreta e reconhece situações em contextos que exigem inferências diretas; usa procedimentos básicos.</td>
+          <td data-lang="en"><strong>Baseline proficiency</strong> — interprets and recognizes situations in contexts requiring direct inferences; uses basic procedures.</td>
+        </tr>
+        <tr>
+          <td class="score">358</td>
+          <td class="name">1</td>
+          <td data-lang="pt">Responde a perguntas em contextos familiares com informação relevante explícita e instruções claras.</td>
+          <td data-lang="en">Answers questions in familiar contexts with explicit relevant information and clear instructions.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Objectives -->
+  <section class="section">
+    <h2 data-lang="pt">Objetivos</h2>
+    <h2 data-lang="en">Objectives</h2>
+    <div data-lang="pt">
+      <p>O PISA foi desenhado para responder a três grandes perguntas:</p>
+      <ul style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:0.92rem;font-weight:300;line-height:1.7;margin-left:22px;max-width:820px;">
+        <li style="margin-bottom:8px;"><strong>O que sabem e conseguem fazer</strong> os estudantes ao final da escolaridade obrigatória, em comparação com seus pares de outros países?</li>
+        <li style="margin-bottom:8px;"><strong>Como o desempenho evolui</strong> ao longo do tempo dentro de cada sistema educacional?</li>
+        <li style="margin-bottom:8px;"><strong>Quais fatores escolares e familiares</strong> estão associados a maior ou menor desempenho — e como esses fatores se relacionam com equidade?</li>
+      </ul>
+    </div>
+    <div data-lang="en">
+      <p>PISA was designed to answer three broad questions:</p>
+      <ul style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:0.92rem;font-weight:300;line-height:1.7;margin-left:22px;max-width:820px;">
+        <li style="margin-bottom:8px;"><strong>What do students know and what can they do</strong> at the end of compulsory schooling, compared with peers in other countries?</li>
+        <li style="margin-bottom:8px;"><strong>How does performance evolve</strong> over time within each education system?</li>
+        <li style="margin-bottom:8px;"><strong>Which school and family factors</strong> are associated with higher or lower achievement — and how do these factors relate to equity?</li>
+      </ul>
+    </div>
+  </section>
+
+  <div style="margin-top:40px;padding:20px 24px;background:#FAFAFA;border-left:3px solid var(--e-red);font-family:'Helvetica Neue',Arial,sans-serif;font-size:0.82rem;color:var(--e-grey);line-height:1.6;">
+    <strong data-lang="pt">Fontes:</strong>
+    <strong data-lang="en">Sources:</strong>
+    <span data-lang="pt">OCDE (2023), <em>PISA 2022 Results</em> (Volumes I–IV), OECD Publishing; <em>PISA 2022 Assessment and Analytical Framework</em>; OECD PISA microdata.</span>
+    <span data-lang="en">OECD (2023), <em>PISA 2022 Results</em> (Volumes I–IV), OECD Publishing; <em>PISA 2022 Assessment and Analytical Framework</em>; OECD PISA microdata.</span>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <p>&copy; 2026 Daniel De Bonis.
+    <span data-lang="pt">Dados: OCDE/PISA.</span>
+    <span data-lang="en">Data: OECD/PISA.</span>
+  </p>
+</footer>
+
+<script>
+function toggleLang() {
+  const html = document.documentElement;
+  const isEn = html.classList.toggle('lang-en');
+  document.getElementById('lang-en').classList.toggle('active', isEn);
+  document.getElementById('lang-pt').classList.toggle('active', !isEn);
+  html.lang = isEn ? 'en' : 'pt-BR';
+  localStorage.setItem('lang', isEn ? 'en' : 'pt');
+}
+(function() {
+  const saved = localStorage.getItem('lang');
+  if (saved === 'en') {
+    document.documentElement.classList.add('lang-en');
+    document.documentElement.lang = 'en';
+    document.getElementById('lang-en').classList.add('active');
+    document.getElementById('lang-pt').classList.remove('active');
+  }
+})();
+</script>
+</body>
+</html>
