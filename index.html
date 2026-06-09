@@ -125,6 +125,61 @@
     color: var(--e-red);
   }
 
+  /* Featured callout — MCP da BNCC */
+  .section-featured {
+    border-top: 1px solid var(--e-grey-light);
+    padding-top: 36px;
+    margin-bottom: 48px;
+  }
+  .section-featured h2 {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+  .featured-card {
+    display: block;
+    border: 1px solid var(--e-grey-light);
+    border-left: 4px solid var(--e-red);
+    padding: 28px 30px;
+    text-decoration: none;
+    color: var(--e-black);
+    background: #FAFAFA;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .featured-card:hover {
+    border-color: var(--e-red);
+    transform: translateY(-2px);
+  }
+  .featured-tag {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--e-red);
+    margin-bottom: 10px;
+  }
+  .featured-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .featured-card p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.65;
+    color: var(--e-black);
+    margin-bottom: 14px;
+    max-width: 760px;
+  }
+  .featured-cta {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-red);
+  }
+
   /* Language toggle */
   .lang-toggle {
     font-size: 0.78rem;
@@ -165,6 +220,7 @@
     <li><a href="dashboard-ept/index.html">EPT</a></li>
     <li><a href="pisa/index.html">PISA</a></li>
     <li><a href="timss/index.html">TIMSS</a></li>
+    <li><a href="bncc/index.html">BNCC</a></li>
     <li class="lang-toggle" onclick="toggleLang()">
       <span id="lang-pt" class="active">PT</span> | <span id="lang-en">EN</span>
     </li>
@@ -221,6 +277,26 @@
       <div class="topic-item" data-lang="pt">IA e educa&ccedil;&atilde;o</div>
       <div class="topic-item" data-lang="en">AI and education</div>
     </div>
+  </div>
+
+  <!-- Featured: MCP da BNCC -->
+  <div class="section-featured">
+    <h2 data-lang="pt">Em destaque</h2>
+    <h2 data-lang="en">Featured</h2>
+    <a href="bncc/index.html" class="featured-card">
+      <div class="featured-tag" data-lang="pt">Novo &middot; Projeto piloto</div>
+      <div class="featured-tag" data-lang="en">New &middot; Pilot project</div>
+      <div data-lang="pt">
+        <h3>MCP da BNCC</h3>
+        <p>Um MCP que disponibiliza, de forma aberta e gratuita, todas as habilidades da Base Nacional Comum Curricular &mdash; e as habilidades priorit&aacute;rias do Mapa de Foco do Instituto Re&uacute;na &mdash; a assistentes de IA como ChatGPT e Claude, em tempo real.</p>
+      </div>
+      <div data-lang="en">
+        <h3>An MCP for the BNCC</h3>
+        <p>An MCP that openly and freely makes all skills of Brazil's National Common Curricular Base &mdash; and the priority skills from Instituto Re&uacute;na's Focus Map &mdash; available to AI assistants like ChatGPT and Claude, in real time.</p>
+      </div>
+      <span class="featured-cta" data-lang="pt">Conhecer o projeto &rarr;</span>
+      <span class="featured-cta" data-lang="en">Learn more &rarr;</span>
+    </a>
   </div>
 
   <!-- Dashboards -->

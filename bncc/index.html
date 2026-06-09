@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1Y553RCK8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1Y553RCK8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP da BNCC — Daniel De Bonis</title>
+<link rel="stylesheet" href="../css/economist.css">
+<style>
+  .page-header {
+    padding: 40px 0 24px;
+    border-bottom: 1px solid var(--e-grey-light);
+    margin-bottom: 32px;
+  }
+  .page-header .kicker {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--e-red);
+    margin-bottom: 8px;
+  }
+  .page-header h1 {
+    font-size: 2rem;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+  }
+  .page-header .lede {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    color: var(--e-black);
+    line-height: 1.55;
+    max-width: 780px;
+  }
+
+  .section {
+    border-top: 1px solid var(--e-grey-light);
+    padding-top: 28px;
+    margin-bottom: 36px;
+  }
+  .section h2 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+  }
+  .section p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.92rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--e-black);
+    margin-bottom: 14px;
+    max-width: 820px;
+  }
+
+  /* Audience factboxes */
+  .factbox-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .factbox {
+    border: 1px solid var(--e-grey-light);
+    border-left: 3px solid var(--e-red);
+    padding: 14px 16px;
+    background: #FAFAFA;
+  }
+  .factbox .label {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--e-grey);
+    margin-bottom: 6px;
+  }
+  .factbox .value {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.98rem;
+    color: var(--e-black);
+    line-height: 1.4;
+  }
+
+  /* Install call-to-action */
+  .install-cta {
+    margin-top: 8px;
+    padding: 28px 28px;
+    border: 1px solid var(--e-grey-light);
+    border-top: 3px solid var(--e-red);
+    background: white;
+  }
+  .install-cta h2 {
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+  }
+  .install-cta p {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.92rem;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--e-black);
+    margin-bottom: 18px;
+    max-width: 820px;
+  }
+  .install-btn {
+    display: inline-block;
+    background: var(--e-red);
+    color: white;
+    text-decoration: none;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 12px 22px;
+    transition: background 0.15s;
+  }
+  .install-btn:hover { background: #b10d08; }
+
+  /* Feedback note */
+  .feedback-note {
+    margin-top: 36px;
+    padding: 20px 24px;
+    background: #FAFAFA;
+    border-left: 3px solid var(--e-red);
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.88rem;
+    color: var(--e-black);
+    line-height: 1.65;
+    max-width: 820px;
+  }
+
+  /* Language toggle */
+  .lang-toggle {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+    cursor: pointer;
+    user-select: none;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+  .lang-toggle span { transition: color 0.15s; }
+  .lang-toggle span.active { color: var(--e-red); }
+  .lang-toggle span:hover { color: var(--e-red); }
+  [data-lang="en"] { display: none; }
+  html.lang-en [data-lang="en"] { display: revert; }
+  html.lang-en [data-lang="pt"] { display: none; }
+
+  @media (max-width: 700px) {
+    .page-header h1 { font-size: 1.55rem; }
+    .factbox-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="economist-topline"></div>
+
+<nav class="site-nav">
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li data-lang="pt"><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li data-lang="en"><a href="#" style="opacity:0.45; pointer-events:none;">Articles</a></li>
+    <li><a href="../dashboard-ept/index.html">EPT</a></li>
+    <li><a href="../pisa/index.html">PISA</a></li>
+    <li><a href="../timss/index.html">TIMSS</a></li>
+    <li><a href="index.html" class="active">BNCC</a></li>
+    <li class="lang-toggle" onclick="toggleLang()">
+      <span id="lang-pt" class="active">PT</span> | <span id="lang-en">EN</span>
+    </li>
+  </ul>
+</nav>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="kicker" data-lang="pt">Inteligência artificial e educação</div>
+    <div class="kicker" data-lang="en">Artificial intelligence and education</div>
+    <h1 data-lang="pt">MCP da Base Nacional Comum Curricular</h1>
+    <h1 data-lang="en">An MCP for Brazil's National Common Curricular Base</h1>
+    <p class="lede" data-lang="pt">Um projeto piloto que disponibiliza, de forma aberta e gratuita, todas as habilidades da <strong>BNCC</strong> a assistentes de IA — para que ChatGPT, Claude e outros consultem uma fonte oficial em tempo real, em vez de depender da memória do treinamento.</p>
+    <p class="lede" data-lang="en">A pilot project that openly and freely makes all of the <strong>BNCC</strong> skills available to AI assistants — so that ChatGPT, Claude and others can query an official source in real time, instead of relying on training memory.</p>
+  </div>
+
+  <!-- What it is -->
+  <section class="section" style="border-top:none;padding-top:0;">
+    <h2 data-lang="pt">O que é</h2>
+    <h2 data-lang="en">What it is</h2>
+    <div data-lang="pt">
+      <p>O MCP da BNCC é um projeto piloto desenvolvido por mim com o Claude Code que disponibiliza de forma aberta e gratuita todas as habilidades da Base Nacional Comum Curricular, organizadas por etapa, série, unidade temática e o objeto de conhecimento. O projeto também inclui as habilidades prioritárias conforme o <strong>Mapa de Foco do Instituto Reúna</strong>, indispensáveis para iniciativas de recomposição de aprendizagens.</p>
+    </div>
+    <div data-lang="en">
+      <p>The BNCC MCP is a pilot project I developed with Claude Code that openly and freely makes available all of the skills (<em>habilidades</em>) of the National Common Curricular Base, organized by stage, grade, thematic unit and object of knowledge. The project also includes the priority skills defined by <strong>Instituto Reúna's Focus Map</strong> (<em>Mapa de Foco</em>), essential for learning-recovery initiatives.</p>
+    </div>
+  </section>
+
+  <!-- What is an MCP -->
+  <section class="section">
+    <h2 data-lang="pt">O que é um MCP</h2>
+    <h2 data-lang="en">What an MCP is</h2>
+    <div data-lang="pt">
+      <p>Pra quem não conhece, MCP (<em>Model Context Protocol</em>) é um padrão aberto que permite conectar assistentes de IA a fontes de dados e ferramentas externas. Com ele instalado, ao invés do ChatGPT ou Claude dependerem de informações absorvidas no seu treinamento ou de buscas na web para uma análise à luz da BNCC, eles passam a consultar uma fonte oficial em tempo real, garantindo maior confiabilidade, rastreabilidade e evitando alucinações.</p>
+    </div>
+    <div data-lang="en">
+      <p>For those unfamiliar, MCP (<em>Model Context Protocol</em>) is an open standard for connecting AI assistants to external data sources and tools. Once installed, instead of ChatGPT or Claude relying on information absorbed during training or on web searches to analyze something in light of the BNCC, they query an official source in real time — improving reliability and traceability while avoiding hallucinations.</p>
+    </div>
+  </section>
+
+  <!-- Who it's for -->
+  <section class="section">
+    <h2 data-lang="pt">Para quem é útil</h2>
+    <h2 data-lang="en">Who it's for</h2>
+    <p data-lang="pt">Para professores desenvolvendo planos de aula, autores produzindo recursos didáticos, desenvolvedores produzindo apps educacionais ou pesquisadores analisando recursos textuais com ajuda de agentes de IA, é um recurso útil, simples e totalmente gratuito.</p>
+    <p data-lang="en">For teachers developing lesson plans, authors producing instructional materials, developers building educational apps, or researchers analyzing text with the help of AI agents, it is a useful, simple and entirely free resource.</p>
+
+    <div class="factbox-grid">
+      <div class="factbox">
+        <div class="label" data-lang="pt">Professores</div>
+        <div class="label" data-lang="en">Teachers</div>
+        <div class="value" data-lang="pt">Desenvolvendo planos de aula alinhados à BNCC</div>
+        <div class="value" data-lang="en">Developing lesson plans aligned to the BNCC</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Autores</div>
+        <div class="label" data-lang="en">Authors</div>
+        <div class="value" data-lang="pt">Produzindo recursos didáticos</div>
+        <div class="value" data-lang="en">Producing instructional materials</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Desenvolvedores</div>
+        <div class="label" data-lang="en">Developers</div>
+        <div class="value" data-lang="pt">Produzindo apps educacionais</div>
+        <div class="value" data-lang="en">Building educational apps</div>
+      </div>
+      <div class="factbox">
+        <div class="label" data-lang="pt">Pesquisadores</div>
+        <div class="label" data-lang="en">Researchers</div>
+        <div class="value" data-lang="pt">Analisando recursos textuais com agentes de IA</div>
+        <div class="value" data-lang="en">Analyzing text with AI agents</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="section">
+    <div class="install-cta">
+      <h2 data-lang="pt">Como instalar</h2>
+      <h2 data-lang="en">How to install</h2>
+      <p data-lang="pt">Para instalar, basta seguir as instruções no link abaixo.</p>
+      <p data-lang="en">To install, just follow the instructions at the link below.</p>
+      <a class="install-btn" href="https://github.com/dfdb76/bncc-mcp" target="_blank" rel="noopener" data-lang="pt">Ver instruções de instalação →</a>
+      <a class="install-btn" href="https://github.com/dfdb76/bncc-mcp" target="_blank" rel="noopener" data-lang="en">View installation instructions →</a>
+    </div>
+  </section>
+
+  <!-- Feedback note -->
+  <div class="feedback-note">
+    <span data-lang="pt">O projeto está em <strong>fase inicial</strong>, então aprecio sugestões, feedbacks e indicações de correções necessárias ou bugs.</span>
+    <span data-lang="en">The project is at an <strong>early stage</strong>, so I welcome suggestions, feedback and reports of needed corrections or bugs.</span>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <p>&copy; 2026 Daniel De Bonis.
+    <span data-lang="pt">Dados: BNCC (MEC); Mapa de Foco (Instituto Reúna).</span>
+    <span data-lang="en">Data: BNCC (MEC); Focus Map (Instituto Reúna).</span>
+  </p>
+</footer>
+
+<script>
+function toggleLang() {
+  const html = document.documentElement;
+  const isEn = html.classList.toggle('lang-en');
+  document.getElementById('lang-en').classList.toggle('active', isEn);
+  document.getElementById('lang-pt').classList.toggle('active', !isEn);
+  html.lang = isEn ? 'en' : 'pt-BR';
+  localStorage.setItem('lang', isEn ? 'en' : 'pt');
+}
+(function() {
+  const saved = localStorage.getItem('lang');
+  if (saved === 'en') {
+    document.documentElement.classList.add('lang-en');
+    document.documentElement.lang = 'en';
+    document.getElementById('lang-en').classList.add('active');
+    document.getElementById('lang-pt').classList.remove('active');
+  }
+})();
+</script>
+</body>
+</html>
