@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1Y553RCK8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1Y553RCK8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>20 anos de IDEB — Daniel De Bonis</title>
+<link rel="stylesheet" href="../css/economist.css">
+<style>
+  .dashboard-header {
+    padding: 24px 0 20px;
+    border-bottom: 1px solid var(--e-grey-light);
+    margin-bottom: 20px;
+  }
+  .dashboard-header h1 { font-size: 1.4rem; letter-spacing: -0.3px; }
+  .dashboard-header p { font-size: 0.85rem; color: var(--e-grey); margin-top: 4px; }
+
+  /* ── Abas de nível ── */
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--e-grey-light); margin-bottom: 20px; }
+  .tab {
+    padding: 10px 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+  }
+  .tab:hover { color: var(--e-black); }
+  .tab.active { color: var(--e-red); border-bottom-color: var(--e-red); }
+
+  .controls {
+    background: var(--e-white);
+    border: 1px solid var(--e-grey-light);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .controls h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .selectors { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .selector-group { flex: 1; min-width: 150px; }
+  .selector-group label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--e-grey);
+    margin-bottom: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .selector-group select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--e-grey-light);
+    border-radius: 2px;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--e-black);
+  }
+  .selector-group select:focus { outline: none; border-color: var(--e-red); }
+  .selector-group select:disabled { background: var(--e-grey-bg); color: var(--e-grey); }
+
+  .chart-card {
+    background: var(--e-white);
+    border: 1px solid var(--e-grey-light);
+    padding: 16px;
+    margin-bottom: 20px;
+    min-height: 260px;
+  }
+  .chart-card h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .chart-sub { font-size: 0.75rem; color: var(--e-grey); margin-bottom: 10px; }
+
+  .status {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--e-grey);
+  }
+  .status.erro { color: var(--e-red); }
+
+  /* ── Sankey em SVG ── */
+  #chart-sankey { width: 100%; overflow-x: auto; }
+  .sankey-svg { display: block; max-width: 100%; }
+  .sankey-svg .fita { fill-opacity: 0.62; transition: fill-opacity 0.12s; }
+  /* entra/sai percorre muita distância vertical e vira arco grosso; recua no fundo */
+  .sankey-svg .fita-fora { fill-opacity: 0.3; }
+  .sankey-svg .fita.destaque { fill-opacity: 0.95; }
+  .sankey-svg .no { shape-rendering: crispEdges; }
+  .sankey-svg .no.destaque { fill: var(--e-red); }
+  .sankey-svg .guia { stroke: #EDEDED; stroke-width: 1; }
+  .sankey-svg .rot-faixa {
+    font-family: 'Franklin Gothic Medium', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--e-black);
+  }
+  .sankey-svg .rot-faixa.rot-fora { font-weight: 400; fill: var(--e-grey); }
+  .sankey-svg .rot-ano {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 13px;
+    font-weight: 700;
+    fill: var(--e-black);
+  }
+  #sankey-tip {
+    position: fixed;
+    display: none;
+    z-index: 50;
+    background: var(--e-black);
+    color: #fff;
+    padding: 7px 10px;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    white-space: pre-line;
+    pointer-events: none;
+    max-width: 300px;
+    border-radius: 2px;
+  }
+
+  /* ── Legenda de direção ── */
+  .legenda { display: flex; gap: 18px; flex-wrap: wrap; font-size: 0.75rem; color: var(--e-grey); margin-top: 10px; }
+  .legenda span { display: flex; align-items: center; gap: 6px; }
+  .legenda i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  .nota-metodo {
+    background: var(--e-grey-bg);
+    border-left: 3px solid var(--e-grey-light);
+    padding: 14px 18px;
+    font-size: 0.78rem;
+    color: var(--e-grey);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .nota-metodo strong { color: var(--e-black); }
+
+  .source-footer {
+    margin-top: 20px;
+    font-size: 0.72rem;
+    color: var(--e-grey);
+    border-top: 1px solid var(--e-grey-light);
+    padding-top: 14px;
+    line-height: 1.6;
+  }
+  .source-footer .link-metodo {
+    display: inline-block;
+    margin-left: 4px;
+    font-weight: 600;
+    color: var(--e-red);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .source-footer .link-metodo:hover { text-decoration: underline; }
+  @media (max-width: 700px) {
+    .selectors { flex-direction: column; }
+    .tabs { overflow-x: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="economist-topline"></div>
+
+<nav class="site-nav">
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="#" style="opacity:0.45; pointer-events:none;">Articles</a></li>
+    <li><a href="../dashboard-ept/index.html">EPT</a></li>
+    <li><a href="../pisa/index.html">PISA</a></li>
+    <li><a href="../timss/index.html">TIMSS</a></li>
+    <li><a href="index.html" class="active">IDEB</a></li>
+    <li><a href="../bncc/index.html">BNCC</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <div class="dashboard-header">
+    <h1>20 anos de IDEB: 2005–2025</h1>
+    <p>Como redes e escolas migraram entre patamares de desempenho ao longo de vinte anos</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-nivel="estados">Estados</button>
+    <button class="tab" data-nivel="municipios">Municípios</button>
+    <button class="tab" data-nivel="escolas">Escolas</button>
+  </div>
+
+  <div class="controls">
+    <h2>Filtros</h2>
+    <div class="selectors">
+      <div class="selector-group" style="max-width:200px;">
+        <label>Métrica</label>
+        <select id="f-metrica">
+          <option value="ideb">IDEB</option>
+          <option value="aprend">IDEB Aprendizagem (N)</option>
+          <option value="rend">IDEB Rendimento (P)</option>
+        </select>
+      </div>
+      <div class="selector-group" style="max-width:170px;">
+        <label>Etapa</label>
+        <select id="f-etapa"></select>
+      </div>
+      <div class="selector-group" style="max-width:150px;">
+        <label>Rede</label>
+        <select id="f-rede"></select>
+      </div>
+      <div class="selector-group" style="max-width:190px;">
+        <label id="lab-recorte">Recorte</label>
+        <select id="f-recorte"></select>
+      </div>
+      <!-- Só na aba Escolas: a lista sai do shard da UF, então é preenchida
+           depois do fetch, não em reconstroiFiltros(). -->
+      <div class="selector-group" id="grupo-municipio" style="max-width:240px; display:none;">
+        <label>Município</label>
+        <select id="f-municipio"><option value="todos">Todos os municípios</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <h3 id="titulo-grafico">—</h3>
+    <div class="chart-sub" id="sub-grafico"></div>
+    <div id="chart-sankey"></div>
+    <div class="legenda" id="legenda" style="display:none;">
+      <span><i style="background:#388E8E"></i> Subiu de faixa</span>
+      <span><i style="background:#C2D8E5"></i> Manteve a faixa</span>
+      <span><i style="background:#D45D5D"></i> Caiu de faixa</span>
+      <span><i style="background:#D4D4D4"></i> Entra / sai da avaliação</span>
+    </div>
+    <div class="status" id="status">Carregando…</div>
+  </div>
+
+  <div class="nota-metodo" id="nota-metodo"></div>
+
+  <div class="source-footer">
+    <strong>Fonte:</strong> Inep/MEC — divulgação do IDEB 2025.
+    O IDEB combina a nota média padronizada do Saeb em língua portuguesa e matemática
+    (<em>aprendizagem</em>, N, de 0 a 10) com a taxa de aprovação do Censo Escolar
+    (<em>rendimento</em>, P, de 0 a 1): IDEB = N × P.
+    Segundo a Nota Informativa do IDEB 2025, os resultados de 2023 e 2025 não têm metas
+    pactuadas mas são comparáveis com as edições anteriores — 2025 é a última divulgação
+    do indicador em sua formulação original.
+    <a href="metodologia.html" class="link-metodo">Nota metodológica &rarr;</a>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// Configuração
+// ══════════════════════════════════════════════════════════════════════════
+
+const ESCALAS = { ideb: 10, aprend: 100, rend: 10000 };
+const CAMPO_IDX = { ideb: 0, aprend: 1, rend: 2 };
+
+const NOME_METRICA = {
+  ideb: 'IDEB', aprend: 'IDEB Aprendizagem (N)', rend: 'IDEB Rendimento (P)'
+};
+const NOME_ETAPA = { AI: 'Anos Iniciais', AF: 'Anos Finais', EM: 'Ensino Médio' };
+
+// A unidade contada não pode afirmar a rede: na aba Municípios o usuário pode
+// escolher a rede estadual dentro do município, e "redes municipais" mentiria.
+const NOME_UNIDADE = {
+  estados: ['rede estadual', 'redes estaduais'],
+  municipios: ['rede', 'redes'],
+  escolas: ['escola', 'escolas']
+};
+
+// Cortes absolutos por etapa e métrica, conferidos contra a ocupação real de cada
+// faixa onda a onda nos três níveis (`build_ideb.py --report` audita e acusa faixa
+// que nunca enche). Ao mexer aqui, mexer também em CORTES_PAGINA no build.
+//
+// Rendimento usa quintis por padrão; estes cortes só entram no fallback de painel
+// com menos de 5 unidades no ano-base.
+const CORTES = {
+  ideb:   { AI: [4.0, 5.0, 6.0, 7.0], AF: [3.5, 4.0, 4.5, 5.0, 5.5, 6.0], EM: [3.0, 3.4, 3.8, 4.2] },
+  aprend: { AI: [4.5, 5.0, 5.5, 6.5], AF: [4.0, 4.5, 5.0, 5.5], EM: [3.8, 4.1, 4.4, 4.7] },
+  rend:   { AI: [0.86, 0.92, 0.96, 0.99], AF: [0.80, 0.88, 0.94, 0.98], EM: [0.75, 0.85, 0.92, 0.97] }
+};
+
+const MARCOS = {
+  estados:    [2005, 2009, 2013, 2017, 2021, 2025],
+  municipios: [2005, 2009, 2013, 2017, 2021, 2025],
+  escolas:    [2009, 2013, 2017, 2021, 2025]
+};
+
+const ETAPAS_POR_NIVEL = {
+  estados: ['AI', 'AF', 'EM'],
+  municipios: ['AI', 'AF'],
+  escolas: ['AI', 'AF']
+};
+
+const COR = {
+  sobe: '#388E8E', mantem: '#C2D8E5', cai: '#D45D5D', fora: '#D4D4D4',
+  no: '#1F3044', noFora: '#9A9A9A'
+};
+
+const PISO_RIBBON = 0.005;   // ribbons abaixo de 0,5% do fluxo da transição são ocultados
+
+// ══════════════════════════════════════════════════════════════════════════
+// Estado
+// ══════════════════════════════════════════════════════════════════════════
+
+const estado = {
+  nivel: 'estados',
+  cache: {},          // chave -> payload JSON
+  carregando: null
+};
+
+const $ = id => document.getElementById(id);
+
+// ══════════════════════════════════════════════════════════════════════════
+// Carregamento de dados
+// ══════════════════════════════════════════════════════════════════════════
+
+function chaveDados() {
+  if (estado.nivel === 'estados') return 'estados';
+  if (estado.nivel === 'municipios') return 'municipios';
+  return `escolas/${$('f-etapa').value}/${$('f-recorte').value}`;
+}
+
+function urlDados(chave) { return `data/${chave}.json`; }
+
+async function pegaDados(chave) {
+  if (estado.cache[chave]) return estado.cache[chave];
+  let r;
+  try {
+    r = await fetch(urlDados(chave));
+  } catch (e) {
+    // "Failed to fetch" cru não diz nada. A causa quase sempre é abrir o arquivo
+    // direto do disco: o navegador bloqueia fetch em file://.
+    if (location.protocol === 'file:') {
+      throw new Error('Esta página precisa ser servida por HTTP — o navegador bloqueia o ' +
+        'carregamento de dados em file://. Rode "python -m http.server" na pasta website/ ' +
+        'e abra http://localhost:8000/ideb/index.html');
+    }
+    throw new Error(`Não foi possível carregar os dados de ${chave}: ${e.message}`);
+  }
+  if (!r.ok) throw new Error(`Não foi possível carregar ${chave} (HTTP ${r.status})`);
+  const j = await r.json();
+  estado.cache[chave] = j;
+  return j;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Montagem do painel: [{serie: [v|null por onda]}] já na métrica escolhida
+// ══════════════════════════════════════════════════════════════════════════
+
+function montaPainel(dados) {
+  const metrica = $('f-metrica').value;
+  const campo = CAMPO_IDX[metrica];
+  const esc = ESCALAS[metrica];
+  const etapa = $('f-etapa').value;
+  const rede = $('f-rede').value;
+  const recorte = $('f-recorte').value;
+  const ondas = dados.meta.ondas;
+  const painel = [];
+
+  const empurra = (serieBruta, rotulo) => {
+    const s = serieBruta[campo];
+    if (!s) return;
+    let algum = false;
+    const v = s.map(x => { if (x === null) return null; algum = true; return x / esc; });
+    if (algum) painel.push({ rotulo, v });
+  };
+
+  if (estado.nivel === 'estados') {
+    const bloco = (dados.dados[etapa] || {})[rede] || {};
+    const porUF = {};
+    dados.unidades.forEach(u => porUF[u.uf] = u);
+    Object.keys(bloco).forEach(uf => {
+      const u = porUF[uf];
+      if (!u) return;
+      if (recorte !== 'BR' && u.regiao !== recorte) return;
+      empurra(bloco[uf], u.nome);
+    });
+  } else if (estado.nivel === 'municipios') {
+    const bloco = (dados.dados[etapa] || {})[rede] || {};
+    Object.keys(bloco).forEach(i => {
+      const m = dados.municipios[i];
+      if (!m) return;
+      if (recorte !== 'BR' && m[2] !== recorte) return;
+      empurra(bloco[i], `${m[1]} (${m[2]})`);
+    });
+  } else {
+    // "Pública" soma as três redes. No nível da escola o IDEB só existe para
+    // escola pública (o Inep exclui as privadas), então a soma de municipal,
+    // estadual e federal é o total do arquivo — não falta rede nenhuma.
+    const todasRedes = rede === 'Publica';
+    const iRede = dados.meta.redes.indexOf(rede);
+    const mun = $('f-municipio').value;
+    Object.keys(dados.dados).forEach(i => {
+      const e = dados.escolas[i];
+      if (!e) return;
+      if (!todasRedes && e[3] !== iRede) return;
+      if (mun !== 'todos' && String(e[2]) !== mun) return;
+      empurra(dados.dados[i], e[1]);
+    });
+  }
+  return { painel, ondas };
+}
+
+// A lista de municípios vem do shard da UF, então só dá para montá-la depois do
+// fetch. É refeita quando a UF muda (a chave dos dados carrega a UF), e aí a
+// seleção volta para "todos" — um município de outra UF não faria sentido.
+function sincronizaMunicipios(dados, chave) {
+  if (estado.municipiosDe === chave) return;
+  const lista = (dados.municipios || [])
+    .map((m, i) => [String(i), m[1]])
+    .sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
+  opcoes($('f-municipio'), [['todos', 'Todos os municípios']].concat(lista), 'todos');
+  estado.municipiosDe = chave;
+}
+
+// Rótulo do recorte para o subtítulo: nomeia o município quando há um escolhido.
+function nomeRecorte() {
+  if (estado.nivel === 'escolas') {
+    const sel = $('f-municipio');
+    const uf = $('f-recorte').value;
+    return sel.value === 'todos' ? uf
+      : `${sel.options[sel.selectedIndex].text} (${uf})`;
+  }
+  const r = $('f-recorte').value;
+  return r === 'BR' ? 'Brasil' : r;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Faixas
+// ══════════════════════════════════════════════════════════════════════════
+
+// Rendimento fica comprimido demais para cortes absolutos (em 2025 quase toda
+// rede estadual está entre 0,91 e 1,00), então essa métrica usa quintis do
+// ano-base. As demais usam os cortes absolutos por etapa.
+function modoFaixas() {
+  return $('f-metrica').value === 'rend' ? 'quintis' : 'abs';
+}
+
+function calculaCortes(painel, ondas, colunas) {
+  const metrica = $('f-metrica').value;
+  const etapa = $('f-etapa').value;
+
+  if (modoFaixas() === 'abs') {
+    return (CORTES[metrica] || {})[etapa] || [];
+  }
+  // quintis do ano-base: distribuição da primeira coluna exibida
+  const i0 = ondas.indexOf(colunas[0]);
+  const vals = painel.map(p => p.v[i0]).filter(x => x !== null).sort((a, b) => a - b);
+  if (vals.length < 5) return (CORTES[metrica] || {})[etapa] || [];
+  return [0.2, 0.4, 0.6, 0.8].map(q => vals[Math.floor(vals.length * q)]);
+}
+
+function faixaDe(valor, cortes) {
+  if (valor === null) return -1;   // -1 = fora da avaliação
+  for (let i = 0; i < cortes.length; i++) if (valor < cortes[i]) return i;
+  return cortes.length;
+}
+
+function rotuloFaixa(i, cortes) {
+  const metrica = $('f-metrica').value;
+  const fmt = v => metrica === 'rend'
+    ? (v * 100).toFixed(0) + '%'
+    : v.toFixed(1).replace('.', ',');
+  if (i === 0) return `abaixo de ${fmt(cortes[0])}`;
+  if (i === cortes.length) return `${fmt(cortes[cortes.length - 1])} ou mais`;
+  return `${fmt(cortes[i - 1])} a ${fmt(cortes[i])}`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Sankey
+// ══════════════════════════════════════════════════════════════════════════
+
+// O sankey é desenhado à mão em SVG, não pelo Plotly. O Plotly ignora `node.y`
+// sozinho e, com `node.x` e `node.y` juntos, para de desenhar da quinta coluna
+// em diante (2.27.0 e 3.0.1, nos quatro `arrangement`). Sem controle da posição
+// vertical não dá para manter as faixas na mesma ordem em todas as colunas, e
+// sem isso o gráfico não comunica movimento — que é o ponto inteiro dele.
+
+function montaFluxos(painel, ondas, colunas, cortes) {
+  const nFaixas = cortes.length + 1;
+  const idx = colunas.map(a => ondas.indexOf(a));
+
+  // Ordem de exibição, de cima para baixo: melhor faixa, ..., pior faixa, fora.
+  const ordem = [];
+  for (let f = nFaixas - 1; f >= 0; f--) ordem.push(f);
+  ordem.push(-1);
+
+  const bruto = new Map();
+  const contagem = { sobe: 0, cai: 0, mantem: 0, fora: 0 };
+
+  for (let c = 0; c < colunas.length - 1; c++) {
+    const ia = idx[c], ib = idx[c + 1];
+    painel.forEach(p => {
+      const va = p.v[ia], vb = p.v[ib];
+      if (va === null && vb === null) return;
+      const fa = faixaDe(va, cortes), fb = faixaDe(vb, cortes);
+      const k = `${c}|${fa}|${fb}`;
+      bruto.set(k, (bruto.get(k) || 0) + 1);
+      if (fa === -1 || fb === -1) contagem.fora++;
+      else if (fb > fa) contagem.sobe++;
+      else if (fb < fa) contagem.cai++;
+      else contagem.mantem++;
+    });
+  }
+
+  const totalPorCol = {};
+  bruto.forEach((n, k) => {
+    const c = k.split('|')[0];
+    totalPorCol[c] = (totalPorCol[c] || 0) + n;
+  });
+
+  // Denominador das porcentagens: quantas unidades tinham valor em cada onda.
+  // É contado direto do painel, não somando nós — assim não depende do piso de
+  // fitas nem do max(entra, sai) do nó "fora".
+  const avaliadas = colunas.map((_, c) =>
+    painel.reduce((s, p) => s + (p.v[idx[c]] !== null ? 1 : 0), 0));
+
+  const links = [];
+  let ocultos = 0;
+  bruto.forEach((n, k) => {
+    const [cs, fas, fbs] = k.split('|');
+    const c = +cs, fa = +fas, fb = +fbs;
+    if (n / totalPorCol[cs] < PISO_RIBBON) { ocultos += n; return; }
+    links.push({
+      c, fa, fb, n,
+      dir: fa === -1 || fb === -1 ? 'fora' : fb > fa ? 'sobe' : fb < fa ? 'cai' : 'mantem'
+    });
+  });
+
+  // Valor de cada nó = max(o que sai, o que entra).
+  //
+  // Nas faixas os dois lados batem: toda unidade presente numa coluna sai dela e
+  // entra na seguinte. No nó "fora da avaliação" não batem — o que sai são as
+  // unidades ausentes ali e presentes na coluna seguinte, o que entra são as
+  // presentes na anterior e ausentes ali. Por isso o max, e não só a saída.
+  const sai = new Map(), entra = new Map();
+  const acumula = (m, c, f, n) => m.set(`${c}|${f}`, (m.get(`${c}|${f}`) || 0) + n);
+  links.forEach(l => {
+    acumula(sai, l.c, l.fa, l.n);
+    acumula(entra, l.c + 1, l.fb, l.n);
+  });
+  const valNo = new Map();
+  new Set([...sai.keys(), ...entra.keys()]).forEach(k =>
+    valNo.set(k, Math.max(sai.get(k) || 0, entra.get(k) || 0)));
+
+  // Descarta raias vazias nas pontas do eixo (ex.: nenhuma escola abaixo de 4,0
+  // em nenhum ano) — são espaço morto. Raias vazias no meio ficam: ali o vazio é
+  // informação, e tirá-las quebraria a régua.
+  const ocupada = f => colunas.some((_, c) => (valNo.get(`${c}|${f}`) || 0) > 0);
+  let faixas = ordem.filter(f => f !== -1);
+  while (faixas.length > 1 && !ocupada(faixas[0])) faixas.shift();
+  while (faixas.length > 1 && !ocupada(faixas[faixas.length - 1])) faixas.pop();
+  const ordemFinal = ocupada(-1) ? faixas.concat([-1]) : faixas;
+
+  return { nFaixas, ordem: ordemFinal, links, valNo, contagem, ocultos, colunas, cortes,
+           avaliadas, nPainel: painel.length };
+}
+
+// ── Geometria ──────────────────────────────────────────────────────────────
+
+// Cada faixa ocupa uma "raia" de altura fixa, na mesma posição vertical em todas
+// as colunas. A barra do ano fica centrada na raia da sua faixa e a altura dela é
+// proporcional à contagem. É isso que faz a nota se deslocar visualmente: a régua
+// não se mexe, a massa é que sobe e desce contra ela.
+const GEO = {
+  colW: 13,
+  raia: 78,          // altura de cada raia
+  preenche: 0.78,    // fração da raia que a maior barra pode ocupar
+  gapFora: 20,       // folga extra antes da raia "fora da avaliação"
+  padTopo: 38, padBaixo: 18,
+  margEsq: 122,      // espaço para os rótulos das faixas, à esquerda
+  margDir: 14
+};
+
+function calculaGeometria(fx, largura) {
+  const { ordem, colunas, valNo } = fx;
+  const nCol = colunas.length;
+  const nRaias = ordem.length;
+
+  const altura = GEO.padTopo + nRaias * GEO.raia + GEO.gapFora + GEO.padBaixo;
+
+  // A escala vem do maior nó individual, não do total da coluna: assim a maior
+  // barra preenche a raia sem invadir a vizinha.
+  let maxNo = 1;
+  colunas.forEach((_, c) => ordem.forEach(f => {
+    maxNo = Math.max(maxNo, valNo.get(`${c}|${f}`) || 0);
+  }));
+  const escala = (GEO.raia * GEO.preenche) / maxNo;
+
+  const centroRaia = i => GEO.padTopo + i * GEO.raia + GEO.raia / 2 +
+                          (ordem[i] === -1 ? GEO.gapFora : 0);
+
+  const areaX = largura - GEO.margEsq - GEO.margDir - GEO.colW;
+  const nos = new Map();
+  colunas.forEach((ano, c) => {
+    const x = nCol === 1 ? GEO.margEsq + areaX / 2 : GEO.margEsq + c * areaX / (nCol - 1);
+    ordem.forEach((f, i) => {
+      const v = valNo.get(`${c}|${f}`) || 0;
+      const h = v * escala;
+      nos.set(`${c}|${f}`, { c, f, x, y: centroRaia(i) - h / 2, h, v });
+    });
+  });
+
+  return { nos, escala, altura, largura, centroRaia, areaX };
+}
+
+function caminhoFita(x0, x1, sy, ty, esp) {
+  const cx = (x0 + x1) / 2;
+  return `M${x0},${sy} C${cx},${sy} ${cx},${ty} ${x1},${ty}` +
+         ` L${x1},${ty + esp} C${cx},${ty + esp} ${cx},${sy + esp} ${x0},${sy + esp} Z`;
+}
+
+function desenha(fx) {
+  const cont = document.getElementById('chart-sankey');
+  const largura = Math.max(320, cont.clientWidth || 900);
+  const g = calculaGeometria(fx, largura);
+  const un = NOME_UNIDADE[estado.nivel];
+  const nUn = n => `${n.toLocaleString('pt-BR')} ${n === 1 ? un[0] : un[1]}`;
+  const rotuloNo = f => f === -1 ? 'Fora da avaliação' : rotuloFaixa(f, fx.cortes);
+
+  // Empilha as fitas dentro de cada nó, ordenadas pela posição do nó do outro
+  // lado — assim as fitas de um mesmo nó não se cruzam entre si.
+  const posOrdem = f => fx.ordem.indexOf(f);
+  const offSaida = new Map(), offEntrada = new Map();
+  const porSaida = [...fx.links].sort((a, b) =>
+    a.c - b.c || posOrdem(a.fa) - posOrdem(b.fa) || posOrdem(a.fb) - posOrdem(b.fb));
+  porSaida.forEach(l => {
+    const k = `${l.c}|${l.fa}`;
+    const no = g.nos.get(k);
+    l.sy = no.y + (offSaida.get(k) || 0);
+    offSaida.set(k, (offSaida.get(k) || 0) + l.n * g.escala);
+  });
+  const porEntrada = [...fx.links].sort((a, b) =>
+    a.c - b.c || posOrdem(a.fb) - posOrdem(b.fb) || posOrdem(a.fa) - posOrdem(b.fa));
+  porEntrada.forEach(l => {
+    const k = `${l.c + 1}|${l.fb}`;
+    const no = g.nos.get(k);
+    l.ty = no.y + (offEntrada.get(k) || 0);
+    offEntrada.set(k, (offEntrada.get(k) || 0) + l.n * g.escala);
+  });
+
+  // As fitas cinza (entra/sai) e as de "manteve" vão atrás; subiu e caiu na frente.
+  const camada = { fora: 0, mantem: 1, cai: 2, sobe: 3 };
+  const ordenadas = [...fx.links].sort((a, b) => camada[a.dir] - camada[b.dir] || b.n - a.n);
+
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const partes = [];
+
+  partes.push(`<svg class="sankey-svg" width="${largura}" height="${g.altura}" ` +
+    `viewBox="0 0 ${largura} ${g.altura}" role="img" ` +
+    `aria-label="Diagrama de fluxo do IDEB entre faixas de desempenho">`);
+
+  // Régua: uma linha-guia por raia, atrás de tudo, para ancorar a leitura da altura.
+  fx.ordem.forEach((f, i) => {
+    const y = g.centroRaia(i);
+    partes.push(`<line class="guia" x1="${GEO.margEsq - 8}" y1="${y}" ` +
+      `x2="${largura - GEO.margDir}" y2="${y}"></line>`);
+  });
+
+  const pct = (n, total) => total ? (100 * n / total).toFixed(n / total < 0.095 ? 1 : 0)
+    .replace('.', ',') + '%' : '—';
+
+  // fitas
+  ordenadas.forEach(l => {
+    const noA = g.nos.get(`${l.c}|${l.fa}`), noB = g.nos.get(`${l.c + 1}|${l.fb}`);
+    const esp = Math.max(l.n * g.escala, 0.6);
+    const d = caminhoFita(noA.x + GEO.colW, noB.x, l.sy, l.ty, esp);
+    const de = rotuloNo(l.fa), para = rotuloNo(l.fb);
+    // A fita é uma fração de quem estava na faixa de origem, então o denominador
+    // é o nó de origem — e não o total do ano.
+    const base = noA.v;
+    const titulo = `${fx.colunas[l.c]} · ${de}  →  ${fx.colunas[l.c + 1]} · ${para}\n` +
+      `${nUn(l.n)} — ${pct(l.n, base)} ${l.fa === -1
+        ? 'das que entraram na avaliação' : `das que estavam em ${de}`}`;
+    partes.push(`<path class="fita fita-${l.dir}" d="${d}" fill="${COR[l.dir]}" ` +
+      `data-tip="${esc(titulo)}"></path>`);
+  });
+
+  // nós
+  fx.colunas.forEach((ano, c) => {
+    fx.ordem.forEach(f => {
+      const no = g.nos.get(`${c}|${f}`);
+      if (!no || no.h <= 0) return;
+      // Faixa: fração das unidades avaliadas naquele ano. "Fora": fração do painel,
+      // já que por definição não está entre as avaliadas.
+      const linha = f === -1
+        ? `${nUn(no.v)} — ${pct(no.v, fx.nPainel)} do painel`
+        : `${nUn(no.v)} — ${pct(no.v, fx.avaliadas[c])} das avaliadas em ${ano}`;
+      partes.push(`<rect class="no" x="${no.x}" y="${no.y}" width="${GEO.colW}" ` +
+        `height="${Math.max(no.h, 1)}" fill="${f === -1 ? COR.noFora : COR.no}" ` +
+        `data-tip="${esc(`${ano} · ${rotuloNo(f)}\n${linha}`)}"></rect>`);
+    });
+  });
+
+  // Eixo das faixas, à esquerda. Como a raia é fixa, basta rotular uma vez.
+  fx.ordem.forEach((f, i) => {
+    partes.push(`<text class="rot-faixa${f === -1 ? ' rot-fora' : ''}" ` +
+      `x="${GEO.margEsq - 16}" y="${g.centroRaia(i)}" text-anchor="end" ` +
+      `dominant-baseline="middle">${esc(rotuloNo(f))}</text>`);
+  });
+
+  // anos no topo
+  fx.colunas.forEach((ano, c) => {
+    const no = g.nos.get(`${c}|${fx.ordem[0]}`);
+    partes.push(`<text class="rot-ano" x="${no.x + GEO.colW / 2}" y="22" ` +
+      `text-anchor="middle">${ano}</text>`);
+  });
+
+  partes.push('</svg>');
+  cont.innerHTML = partes.join('');
+  ligaTooltip(cont);
+}
+
+// ── Tooltip ────────────────────────────────────────────────────────────────
+
+function ligaTooltip(cont) {
+  let tip = document.getElementById('sankey-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'sankey-tip';
+    document.body.appendChild(tip);
+  }
+  const esconde = () => { tip.style.display = 'none'; };
+
+  cont.querySelectorAll('[data-tip]').forEach(el => {
+    el.addEventListener('mouseenter', e => {
+      tip.textContent = el.getAttribute('data-tip');
+      tip.style.display = 'block';
+      el.classList.add('destaque');
+      posiciona(e);
+    });
+    el.addEventListener('mousemove', posiciona);
+    el.addEventListener('mouseleave', () => { esconde(); el.classList.remove('destaque'); });
+  });
+
+  function posiciona(e) {
+    const r = tip.getBoundingClientRect();
+    let x = e.clientX + 14, y = e.clientY + 14;
+    if (x + r.width > window.innerWidth - 8) x = e.clientX - r.width - 14;
+    if (y + r.height > window.innerHeight - 8) y = e.clientY - r.height - 14;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Render
+// ══════════════════════════════════════════════════════════════════════════
+
+function mostraStatus(msg, erro) {
+  const s = $('status');
+  s.textContent = msg || '';
+  s.style.display = msg ? 'block' : 'none';
+  s.className = 'status' + (erro ? ' erro' : '');
+  if (msg) {
+    document.getElementById('chart-sankey').innerHTML = '';
+    $('legenda').style.display = 'none';
+  }
+}
+
+async function render() {
+  const chave = chaveDados();
+  estado.carregando = chave;
+  mostraStatus('Carregando…');
+
+  let dados;
+  try {
+    dados = await pegaDados(chave);
+  } catch (e) {
+    mostraStatus(e.message, true);
+    return;
+  }
+  if (estado.carregando !== chave) return;   // outra troca de filtro chegou antes
+
+  if (estado.nivel === 'escolas') sincronizaMunicipios(dados, chave);
+
+  const { painel, ondas } = montaPainel(dados);
+  if (!painel.length) {
+    mostraStatus('Nenhuma unidade com dados para essa combinação de filtros.');
+    return;
+  }
+
+  const colunas = MARCOS[estado.nivel].filter(a => ondas.includes(a));
+
+  const cortes = calculaCortes(painel, ondas, colunas);
+  if (!cortes.length) {
+    mostraStatus('Não há cortes de faixa definidos para essa combinação.');
+    return;
+  }
+
+  const fx = montaFluxos(painel, ondas, colunas, cortes);
+  mostraStatus('');
+  desenha(fx);
+  $('legenda').style.display = 'flex';
+
+  // ── cabeçalho
+  const metrica = $('f-metrica').value;
+  const un = NOME_UNIDADE[estado.nivel];
+  const nUn = n => `${n.toLocaleString('pt-BR')} ${n === 1 ? un[0] : un[1]}`;
+  // O rótulo, não o valor: o value é 'Publica' sem acento.
+  const selRede = $('f-rede');
+  const nomeRede = selRede.options[selRede.selectedIndex].text.toLowerCase();
+  $('titulo-grafico').textContent =
+    `${NOME_METRICA[metrica]} — ${NOME_ETAPA[$('f-etapa').value]}, rede ${nomeRede}`;
+  $('sub-grafico').textContent = [
+    nomeRecorte(),
+    nUn(painel.length),
+    `${colunas[0]}–${colunas[colunas.length - 1]}`,
+    modoFaixas() === 'abs' ? 'faixas absolutas' : `quintis de ${colunas[0]}`
+  ].filter(Boolean).join(' · ');
+
+  // ── nota metodológica
+  const partes = [];
+  partes.push(`<strong>Como ler:</strong> cada coluna é uma edição do IDEB e cada nó é uma faixa
+    de desempenho. A espessura da fita é o número de ${un[1]} que migraram de uma faixa para outra
+    entre duas edições.`);
+  if (fx.contagem.fora) {
+    const f = fx.contagem.fora;
+    partes.push(`<strong>Entra / sai da avaliação:</strong> ${f.toLocaleString('pt-BR')}
+      ${f === 1 ? 'transição envolve' : 'transições envolvem'} ${un[0]} sem IDEB em uma das duas
+      pontas — porque não atingiu o mínimo de alunos avaliados, não alcançou a taxa de participação
+      exigida, ou ainda não existia.`);
+  }
+  if (estado.nivel === 'escolas') {
+    partes.push(`<strong>Por que a série começa em 2009:</strong> em 2005 a Prova Brasil era
+      censitária apenas para escolas urbanas com 30 alunos ou mais na série avaliada; em 2007 o
+      critério caiu para 20 alunos e passou a incluir escolas rurais. Uma coluna de 2005 cobriria
+      menos da metade das escolas avaliadas hoje e mediria outro universo.`);
+  }
+  if (fx.ocultos) {
+    partes.push(`<strong>Fitas ocultas:</strong> ${fx.ocultos.toLocaleString('pt-BR')} transições
+      estão em fluxos que representam menos de 0,5% de sua coluna e foram omitidas para manter o
+      gráfico legível. É por isso que as porcentagens das barras de um mesmo ano somam pouco menos
+      de 100%.`);
+  }
+  $('nota-metodo').innerHTML = partes.map(p => `<p style="margin-bottom:8px">${p}</p>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// Filtros
+// ══════════════════════════════════════════════════════════════════════════
+
+function opcoes(sel, itens, valor) {
+  // Nomes de município podem trazer & e aspas ("Olho d'Água", "Santa Bárbara").
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  sel.innerHTML = itens.map(([v, t]) =>
+    `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+  if (valor !== undefined && itens.some(i => i[0] === valor)) sel.value = valor;
+}
+
+const UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR',
+             'PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+const REGIOES = ['Norte','Nordeste','Sudeste','Sul','Centro-Oeste'];
+
+function reconstroiFiltros(trocouNivel) {
+  const n = estado.nivel;
+
+  const etapaAtual = $('f-etapa').value;
+  opcoes($('f-etapa'), ETAPAS_POR_NIVEL[n].map(e => [e, NOME_ETAPA[e]]), etapaAtual);
+
+  // Ao trocar de aba a rede volta ao padrão do nível. Preservar o valor herdado
+  // deixaria a aba Municípios abrindo na rede estadual, que não é a leitura
+  // principal e é a de maior churn.
+  const redes = n === 'estados' ? ['Estadual', 'Publica', 'Total']
+              : n === 'municipios' ? ['Municipal', 'Estadual', 'Publica']
+              : ['Municipal', 'Estadual', 'Federal', 'Publica'];
+  const rotuloRede = { Publica: 'Pública', Total: 'Total' };
+  const redeAtual = trocouNivel ? redes[0] : $('f-rede').value;
+  opcoes($('f-rede'), redes.map(r => [r, rotuloRede[r] || r]), redeAtual);
+
+  const recorteAtual = trocouNivel && n !== 'escolas' ? 'BR' : $('f-recorte').value;
+  if (n === 'escolas') {
+    $('lab-recorte').textContent = 'UF (obrigatório)';
+    opcoes($('f-recorte'), UFS.map(u => [u, u]), UFS.includes(recorteAtual) ? recorteAtual : 'SP');
+  } else {
+    $('lab-recorte').textContent = 'Recorte';
+    opcoes($('f-recorte'),
+      [['BR', 'Brasil']].concat(REGIOES.map(r => [r, r]))
+                        .concat(n === 'municipios' ? UFS.map(u => [u, u]) : []),
+      recorteAtual || 'BR');
+  }
+
+  // O seletor de município só existe na aba Escolas; a lista em si é preenchida
+  // por sincronizaMunicipios(), depois que o shard da UF chega.
+  $('grupo-municipio').style.display = n === 'escolas' ? '' : 'none';
+  if (n !== 'escolas') estado.municipiosDe = null;
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    estado.nivel = t.dataset.nivel;
+    reconstroiFiltros(true);
+    render();
+  });
+});
+
+['f-metrica', 'f-etapa', 'f-rede', 'f-recorte', 'f-municipio'].forEach(id => {
+  $(id).addEventListener('change', () => {
+    if (id === 'f-metrica') reconstroiFiltros();
+    render();
+  });
+});
+
+// O SVG é desenhado com a largura do container no momento do render, então
+// precisa ser refeito quando a janela muda de tamanho (o Plotly fazia isso
+// sozinho com `responsive: true`).
+let timerResize;
+window.addEventListener('resize', () => {
+  clearTimeout(timerResize);
+  timerResize = setTimeout(render, 180);
+});
+
+reconstroiFiltros();
+render();
+</script>
+</body>
+</html>

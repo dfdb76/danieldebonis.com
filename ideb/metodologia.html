@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P1Y553RCK8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-P1Y553RCK8');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDEB — nota metodológica — Daniel De Bonis</title>
+<link rel="stylesheet" href="../css/economist.css">
+<style>
+  .doc { max-width: 760px; }
+  .doc-header {
+    padding: 32px 0 20px;
+    border-bottom: 1px solid var(--e-grey-light);
+    margin-bottom: 28px;
+  }
+  .doc-header .kicker {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--e-red);
+    margin-bottom: 8px;
+  }
+  .doc-header h1 { font-size: 1.7rem; letter-spacing: -0.4px; }
+  .doc h2 {
+    font-size: 1.05rem;
+    margin: 30px 0 10px;
+    padding-top: 22px;
+    border-top: 1px solid var(--e-grey-light);
+  }
+  .doc h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .doc p, .doc li {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .doc ul { padding-left: 20px; margin-bottom: 12px; }
+  .doc li { margin-bottom: 6px; }
+
+  .formula {
+    display: flex;
+    border: 1px solid var(--e-grey-light);
+    margin: 18px 0;
+    flex-wrap: wrap;
+  }
+  .formula div {
+    flex: 1;
+    min-width: 180px;
+    padding: 16px 18px;
+    border-right: 1px solid var(--e-grey-light);
+  }
+  .formula div:last-child { border-right: none; }
+  .formula .simbolo {
+    font-family: Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--e-red);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .formula .titulo { font-weight: 600; font-size: 0.85rem; margin-bottom: 3px; }
+  .formula .desc { font-size: 0.78rem; color: var(--e-grey); line-height: 1.5; font-weight: 300; }
+
+  table.n { width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 0.85rem; }
+  table.n th, table.n td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--e-grey-light);
+  }
+  table.n th {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-grey);
+  }
+  table.n td.num, table.n th.num { text-align: right; }
+  table.n td.num { font-variant-numeric: tabular-nums; }
+
+  .voltar {
+    display: inline-block;
+    margin-top: 32px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--e-red);
+    text-decoration: none;
+  }
+  .fonte {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--e-grey-light);
+    font-size: 0.75rem;
+    color: var(--e-grey);
+    line-height: 1.6;
+  }
+  @media (max-width: 700px) { .doc-header h1 { font-size: 1.4rem; } }
+</style>
+</head>
+<body>
+
+<div class="economist-topline"></div>
+
+<nav class="site-nav">
+  <ul class="nav-links">
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="#" style="opacity:0.45; pointer-events:none;">Artigos</a></li>
+    <li><a href="../dashboard-ept/index.html">EPT</a></li>
+    <li><a href="../pisa/index.html">PISA</a></li>
+    <li><a href="../timss/index.html">TIMSS</a></li>
+    <li><a href="index.html" class="active">IDEB</a></li>
+    <li><a href="../bncc/index.html">BNCC</a></li>
+  </ul>
+</nav>
+
+<div class="container doc">
+
+  <div class="doc-header">
+    <div class="kicker">20 anos de IDEB · 2005–2025</div>
+    <h1>Nota metodológica</h1>
+  </div>
+
+  <h2>Como o IDEB é construído</h2>
+  <p>O IDEB é o produto de dois componentes. É essa multiplicação que dá ao indicador sua
+  propriedade central: uma rede só melhora se aprender <em>e</em> fizer os estudantes avançarem.
+  Aprovar todo mundo sem aprendizagem não sobe o índice; aprender muito com reprovação alta,
+  tampouco.</p>
+
+  <div class="formula">
+    <div>
+      <div class="simbolo">N</div>
+      <div class="titulo">Aprendizagem</div>
+      <div class="desc">Nota média padronizada no Saeb em língua portuguesa e matemática, de 0 a 10.</div>
+    </div>
+    <div>
+      <div class="simbolo">P</div>
+      <div class="titulo">Rendimento</div>
+      <div class="desc">Indicador derivado das taxas de aprovação do Censo Escolar, de 0 a 1.</div>
+    </div>
+    <div>
+      <div class="simbolo">N × P</div>
+      <div class="titulo">IDEB</div>
+      <div class="desc">O índice final, de 0 a 10, divulgado a cada dois anos desde 2005.</div>
+    </div>
+  </div>
+
+  <p>Os três aparecem como opção de <strong>métrica</strong> no gráfico, o que permite ver se a
+  subida de uma rede veio de aprendizagem ou de fluxo escolar.</p>
+
+  <h2>O que a última edição cobre</h2>
+  <p>São <strong>onze edições bienais</strong>, de 2005 a 2025. Em 2025, tiveram IDEB calculado:</p>
+
+  <table class="n">
+    <tr><th>Etapa</th><th class="num">Escolas</th><th class="num">Municípios (rede pública)</th></tr>
+    <tr><td>Anos Iniciais</td><td class="num">42.454</td><td class="num">5.478</td></tr>
+    <tr><td>Anos Finais</td><td class="num">33.448</td><td class="num">5.491</td></tr>
+    <tr><td>Ensino Médio</td><td class="num">17.584</td><td class="num">5.428</td></tr>
+  </table>
+
+  <p>O <strong>Ensino Médio entrou depois</strong>: por escola e por município, o IDEB dessa etapa
+  só existe a partir de 2017. Por isso ele aparece apenas na aba Estados, onde a série cobre os
+  vinte anos completos.</p>
+
+  <p>Segundo a Nota Informativa do IDEB 2025, as edições de 2023 e 2025 não têm metas pactuadas,
+  mas são comparáveis com as anteriores. <strong>2025 é a última divulgação do indicador em sua
+  formulação original.</strong></p>
+
+  <h2>O que mudou em vinte anos</h2>
+  <p>A cobertura do IDEB não é a mesma desde o começo, e isso muda o que se pode comparar:</p>
+  <ul>
+    <li><strong>2005</strong> — a Prova Brasil era censitária apenas para escolas <strong>urbanas
+    com 30 alunos ou mais</strong> na série avaliada.</li>
+    <li><strong>2007</strong> — o critério caiu para 20 alunos e passou a incluir
+    <strong>escolas rurais</strong>.</li>
+    <li><strong>2017</strong> — o mínimo caiu para 10 alunos e entrou a exigência de
+    <strong>80% de participação</strong> para o resultado ser divulgado.</li>
+  </ul>
+  <p>O retrato de 2005 é, portanto, o de uma rede urbana média e grande — não o do Brasil. É por
+  isso que, na aba Escolas, a série começa em <strong>2009</strong>: uma coluna de 2005 cobriria
+  menos da metade das escolas avaliadas hoje e mediria outro universo.</p>
+
+  <h2>O degrau de 2017</h2>
+  <p>A exigência de 80% de participação, criada em 2017, atingiu muito mais os anos finais que os
+  iniciais: deixou <strong>10.139 escolas de anos finais</strong> sem IDEB naquele ano, contra
+  <strong>5.235 dos anos iniciais</strong> — o 9º ano tem absenteísmo maior que o 5º. Em 2019 a
+  exclusão nos anos finais caiu para 5.962 e a cobertura se recuperou.</p>
+  <p>Isso aparece no gráfico como um fluxo cinza grosso entrando e saindo em 2017, e não deve ser
+  lido como escolas fechando ou piorando. As escolas que saíram tinham IDEB 2015 em média 0,41
+  ponto abaixo das que ficaram, então <strong>cerca de um quarto da melhora aparente dos anos
+  finais em 2017 é composição da amostra, não aprendizagem</strong>. Nos anos iniciais o efeito é
+  desprezível.</p>
+
+  <h2>Como ler o gráfico</h2>
+  <p>Cada coluna é uma edição do IDEB e cada faixa horizontal é um patamar de desempenho, sempre
+  na mesma altura em todos os anos. A barra de cada ano tem altura proporcional ao número de
+  unidades naquela faixa, e a espessura da fita é quantas migraram de uma faixa para outra entre
+  duas edições. As cores marcam a direção: subiu, manteve, caiu, ou entrou e saiu da avaliação.</p>
+  <p>Fitas que representam menos de 0,5% do fluxo de uma transição são omitidas para manter o
+  gráfico legível — é por isso que as porcentagens das barras de um mesmo ano somam pouco menos
+  de 100%.</p>
+
+  <a class="voltar" href="index.html">&larr; Voltar aos gráficos</a>
+
+  <div class="fonte">
+    <strong>Fontes:</strong> Inep/MEC — divulgação do IDEB 2025 (planilhas por unidade da
+    federação, município e escola); Notas Informativas do IDEB de 2017, 2019 e 2025. Os critérios
+    de participação de cada edição constam do Quadro 1 de cada nota; a regra dos 80% é a Portaria
+    nº 447, de 24 de maio de 2017.
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <p>&copy; 2026 Daniel De Bonis. Dados: Inep/MEC.</p>
+</footer>
+
+</body>
+</html>
